@@ -1,250 +1,178 @@
-import { EditorTheme, LanguageType } from '../types/editor';
+import { EditorTheme } from '../types/editor';
 
+/**
+ * Escapes HTML characters to prevent XSS and rendering issues.
+ */
 function escapeHtml(str: string): string {
   return str
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
-export function highlightCode(
-  code: string,
-  language: LanguageType,
-  theme: EditorTheme
-): string {
-  if (!code) {
-    return ' ';
+/**
+ * Lightweight, high-performance syntax highlighter optimized for mobile WebView.
+ * Handles TypeScript (.ts, .tsx), JavaScript (.js, .jsx), HTML, CSS, JSON, and Markdown.
+ */
+export function highlightCode(code: string, language: string, theme?: EditorTheme): string {
+  if (!code) return '';
+  const lang = (language || 'text').toLowerCase();
+
+  if (lang === 'text') {
+    return escapeHtml(code);
   }
 
-  // Ensure trailing newline renders matching height in overlay
-  const normalized = code.endsWith('\n') ? code + ' ' : code;
+  // Fallback palette inspired by modern dark themes (Acode/VS Code Dark)
+  const colors = {
+    keyword: '#f43f5e',     // rose-500 (import, const, return, interface)
+    tag: '#38bdf8',         // sky-400 (<div>, <SettingsModal>)
+    attribute: '#fbbf24',   // amber-400 (className, isOpen, onClick)
+    string: '#4ade80',      // emerald-400 ('hello', "title", `text`)
+    comment: '#64748b',     // slate-500 (// comment, /* block */)
+    function: '#60a5fa',    // blue-400 (useState, console.log)
+    number: '#fb923c',      // orange-400 (123, 0.5)
+    type: '#2dd4bf',        // teal-400 (string, boolean, React.FC)
+    operator: '#e2e8f0',    // slate-200 (=, +, =>)
+    property: '#a78bfa',    // violet-400 (color:, margin:)
+    variable: '#f1f5f9',    // slate-100
+  };
 
-  switch (language) {
-    case 'html':
-      return highlightHtml(normalized, theme);
-    case 'javascript':
-    case 'typescript':
-      return highlightJavaScript(normalized, theme);
-    case 'css':
-      return highlightCss(normalized, theme);
-    case 'json':
-      return highlightJson(normalized, theme);
-    case 'python':
-      return highlightPython(normalized, theme);
-    case 'markdown':
-      return highlightMarkdown(normalized, theme);
-    default:
-      return escapeHtml(normalized);
-  }
-}
+  // Helper to wrap tokens
+  const wrap = (text: string, color: string, italic = false, bold = false) => {
+    const style = `color:${color};${italic ? 'font-style:italic;' : ''}${bold ? 'font-weight:600;' : ''}`;
+    return `<span style="${style}">${escapeHtml(text)}</span>`;
+  };
 
-function highlightHtml(code: string, theme: EditorTheme): string {
-  // Comments: <!-- ... -->
-  // Tags: <tag, </tag, >
-  // Attributes: attr="val"
-  const escaped = escapeHtml(code);
-
-  return escaped
-    // HTML Comments
-    .replace(
-      /(&lt;!--[\s\S]*?--&gt;)/g,
-      `<span style="color: ${theme.comment}; font-style: italic;">$1</span>`
-    )
-    // DOCTYPE
-    .replace(
-      /(&lt;!DOCTYPE[\s\S]*?&gt;)/gi,
-      `<span style="color: ${theme.keyword}; font-weight: 600;">$1</span>`
-    )
-    // Tags and attributes
-    .replace(
-      /(&lt;\/?)([a-zA-Z0-9\-]+)([\s\S]*?)(&gt;)/g,
-      (_match, p1, tag, attrs, p4) => {
-        const highlightedAttrs = attrs.replace(
-          /([a-zA-Z0-9\-_:@.]+)(=)(["'][^"']*["'])/g,
-          `<span style="color: ${theme.attribute};">$1</span><span style="color: ${theme.operator};">$2</span><span style="color: ${theme.string};">$3</span>`
-        );
-        return `<span style="color: ${theme.operator};">${p1}</span><span style="color: ${theme.tag}; font-weight: 500;">${tag}</span>${highlightedAttrs}<span style="color: ${theme.operator};">${p4}</span>`;
-      }
-    );
-}
-
-function highlightJavaScript(code: string, theme: EditorTheme): string {
-  const keywords =
-    /\b(const|let|var|function|return|if|else|for|while|do|switch|case|break|continue|default|import|export|from|as|class|extends|new|this|super|try|catch|finally|throw|typeof|instanceof|async|await|yield|in|of|void|delete|null|undefined|true|false)\b/g;
-
-  // Preserve strings and comments with tokens to avoid nested regex collisions
-  const tokens: { placeholder: string; html: string }[] = [];
-  let tokenCount = 0;
-
-  function storeToken(html: string): string {
-    const placeholder = `___TOKEN_${tokenCount++}___`;
-    tokens.push({ placeholder, html });
-    return placeholder;
-  }
-
-  // 1. Strings (single, double, backtick)
-  let processed = code.replace(
-    /(["'`])(?:\\.|(?!\1)[^\\\r\n])*\1|`[\s\S]*?`/g,
-    (match) => {
-      return storeToken(
-        `<span style="color: ${theme.string};">${escapeHtml(match)}</span>`
+  try {
+    // 1. JSON Highlighter
+    if (lang === 'json') {
+      const escaped = escapeHtml(code);
+      return escaped.replace(
+        /(&quot;(\u[a-zA-Z0-9]{4}|\[^u]|[^\"])*&quot;(\s*:)?|(true|false|null)|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+        (match) => {
+          if (/^&quot;/.test(match)) {
+            if (/:$/.test(match)) {
+              return `<span style="color:${colors.property};font-weight:600;">${match}</span>`;
+            }
+            return `<span style="color:${colors.string}">${match}</span>`;
+          }
+          if (/true|false/.test(match)) {
+            return `<span style="color:${colors.keyword}">${match}</span>`;
+          }
+          if (/null/.test(match)) {
+            return `<span style="color:${colors.comment}">${match}</span>`;
+          }
+          return `<span style="color:${colors.number}">${match}</span>`;
+        }
       );
     }
-  );
 
-  // 2. Comments (single-line and multi-line)
-  processed = processed.replace(/(\/\/[^\r\n]*|\/\*[\s\S]*?\*\/)/g, (match) => {
-    return storeToken(
-      `<span style="color: ${theme.comment}; font-style: italic;">${escapeHtml(
-        match
-      )}</span>`
+    // 2. CSS / SCSS Highlighter
+    if (lang === 'css' || lang === 'scss' || lang === 'less') {
+      const escaped = escapeHtml(code);
+      return escaped
+        .replace(/(\/\*[\s\S]*?\*\/)/g, `<span style="color:${colors.comment};font-style:italic;">$1</span>`)
+        .replace(/([.#][a-zA-Z0-9_-]+)/g, `<span style="color:${colors.tag};font-weight:600;">$1</span>`)
+        .replace(/([a-zA-Z-]+)(\s*:)/g, `<span style="color:${colors.property};">$1</span>$2`)
+        .replace(/(:)(\s*)([^;{}]+)(;)?/g, (_, colon, space, val, semi) => {
+          const valColored = val.replace(
+            /(#[a-fA-F0-9]{3,8}|\d+(\.\d+)?(px|rem|em|%|vh|vw|ms|s)?|&quot;.*?&quot;|&#39;.*?&#39;)/g,
+            `<span style="color:${colors.number}">$1</span>`
+          );
+          return `${colon}${space}${valColored}${semi || ''}`;
+        });
+    }
+
+    // 3. HTML Highlighter
+    if (lang === 'html' || lang === 'xml' || lang === 'svg') {
+      const escaped = escapeHtml(code);
+      return escaped
+        .replace(/(&lt;!--[\s\S]*?--&gt;)/g, `<span style="color:${colors.comment};font-style:italic;">$1</span>`)
+        .replace(/(&lt;\/?)([a-zA-Z0-9:-]+)/g, `$1<span style="color:${colors.tag};font-weight:600;">$2</span>`)
+        .replace(/([a-zA-Z0-9:-]+)(=)(&quot;.*?&quot;|&#39;.*?&#39;)/g, `<span style="color:${colors.attribute}">$1</span>$2<span style="color:${colors.string}">$3</span>`)
+        .replace(/(&gt;|&lt;\/|&lt;|\/&gt;)/g, `<span style="color:${colors.tag}">$1</span>`);
+    }
+
+    // 4. JavaScript, TypeScript, JSX, TSX Highlighter (Complete Engine)
+    // We parse tokens using a single sequential scanner to avoid broken HTML tags
+    const tokenRegex = new RegExp(
+      [
+        // Comments (single & multi)
+        '(\/\/[^\n]*|\/\*[\s\S]*?\*\/)',
+        // Strings (double, single, template literals)
+        '("(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|`[\s\S]*?`)',
+        // TSX / JSX Tags: <ComponentName, </ComponentName>, <div, </div
+        '(<\/?[A-Z][a-zA-Z0-9_.]*|<\/?[a-z][a-zA-Z0-9-]*|\/?>)',
+        // JSX Prop names (e.g. className=, isOpen=)
+        '(\b[a-zA-Z_][a-zA-Z0-9_-]*(?=\s*=\s*["\'{]))',
+        // TypeScript / JS Keywords
+        '\b(import|export|from|as|default|const|let|var|function|return|if|else|for|while|do|switch|case|break|continue|try|catch|finally|throw|new|typeof|instanceof|async|await|yield|class|extends|super|this|interface|type|enum|implements|declare|readonly|private|public|protected|static|void|any|unknown|never|true|false|null|undefined)\b',
+        // TypeScript Types / Classes
+        '\b(string|number|boolean|symbol|bigint|object|Array|Record|Partial|Promise|React|FC|FileItem|EditorSettings|EditorTheme|CursorPosition)\b',
+        // Numbers
+        '\b(\d+(?:\.\d+)?(?:e[+-]?\d+)?)\b',
+        // Function calls: name(...)
+        '\b([a-zA-Z_$][a-zA-Z0-9_$]*)(?=\s*\()',
+      ].join('|'),
+      'g'
     );
-  });
 
-  // 3. Numbers
-  processed = escapeHtml(processed);
-  processed = processed.replace(
-    /\b(\d+(\.\d+)?([eE][+-]?\d+)?)\b/g,
-    `<span style="color: ${theme.number};">$1</span>`
-  );
+    let lastIndex = 0;
+    let result = '';
+    let match: RegExpExecArray | null;
 
-  // 4. Function invocations: foo(...)
-  processed = processed.replace(
-    /\b([a-zA-Z_$][a-zA-Z0-9_$]*)(?=\s*\()/g,
-    `<span style="color: ${theme.function}; font-weight: 500;">$1</span>`
-  );
+    while ((match = tokenRegex.exec(code)) !== null) {
+      // Append un-tokenized plain text
+      if (match.index > lastIndex) {
+        result += escapeHtml(code.slice(lastIndex, match.index));
+      }
 
-  // 5. Keywords
-  processed = processed.replace(
-    keywords,
-    `<span style="color: ${theme.keyword}; font-weight: 600;">$1</span>`
-  );
+      const [
+        raw,
+        comment,
+        str,
+        jsxTag,
+        jsxProp,
+        keyword,
+        typeToken,
+        num,
+        funcName,
+      ] = match;
 
-  // 6. Operators
-  processed = processed.replace(
-    /([=+\-*/%&|!<>?:^~]+)/g,
-    `<span style="color: ${theme.operator};">$1</span>`
-  );
+      if (comment) {
+        result += wrap(comment, colors.comment, true);
+      } else if (str) {
+        result += wrap(str, colors.string);
+      } else if (jsxTag) {
+        // Distinguish React Components (Capitalized) vs HTML tags
+        const isComponent = /<\/?[A-Z]/.test(jsxTag);
+        result += wrap(jsxTag, isComponent ? colors.type : colors.tag, false, isComponent);
+      } else if (jsxProp) {
+        result += wrap(jsxProp, colors.attribute);
+      } else if (keyword) {
+        result += wrap(keyword, colors.keyword, false, true);
+      } else if (typeToken) {
+        result += wrap(typeToken, colors.type);
+      } else if (num) {
+        result += wrap(num, colors.number);
+      } else if (funcName) {
+        result += wrap(funcName, colors.function);
+      } else {
+        result += escapeHtml(raw);
+      }
 
-  // Restore preserved tokens
-  for (let i = tokens.length - 1; i >= 0; i--) {
-    processed = processed.replace(tokens[i].placeholder, tokens[i].html);
+      lastIndex = tokenRegex.lastIndex;
+    }
+
+    if (lastIndex < code.length) {
+      result += escapeHtml(code.slice(lastIndex));
+    }
+
+    return result;
+  } catch (e) {
+    console.error('Error during syntax highlighting', e);
+    return escapeHtml(code);
   }
-
-  return processed;
-}
-
-function highlightCss(code: string, theme: EditorTheme): string {
-  const escaped = escapeHtml(code);
-
-  return (
-    escaped
-      // Comments /* ... */
-      .replace(
-        /(\/\*[\s\S]*?\*\/)/g,
-        `<span style="color: ${theme.comment}; font-style: italic;">$1</span>`
-      )
-      // Properties and values
-      .replace(
-        /([a-zA-Z\-]+)(\s*:)([^;{}]+)(;?)/g,
-        `<span style="color: ${theme.attribute};">$1</span><span style="color: ${theme.operator};">$2</span><span style="color: ${theme.string};">$3</span><span style="color: ${theme.operator};">$4</span>`
-      )
-      // Selectors before {
-      .replace(
-        /([^{}]+)(?=\{)/g,
-        `<span style="color: ${theme.function}; font-weight: 600;">$1</span>`
-      )
-  );
-}
-
-function highlightJson(code: string, theme: EditorTheme): string {
-  const escaped = escapeHtml(code);
-
-  return (
-    escaped
-      // Keys: "key":
-      .replace(
-        /(&quot;[\w\-_]+&quot;)(\s*:)/g,
-        `<span style="color: ${theme.keyword}; font-weight: 500;">$1</span><span style="color: ${theme.operator};">$2</span>`
-      )
-      // String values
-      .replace(
-        /:\s*(&quot;[^&]*&quot;)/g,
-        `: <span style="color: ${theme.string};">$1</span>`
-      )
-      // Numbers, booleans, null
-      .replace(
-        /\b(true|false|null|\d+(\.\d+)?)\b/g,
-        `<span style="color: ${theme.number};">$1</span>`
-      )
-  );
-}
-
-function highlightPython(code: string, theme: EditorTheme): string {
-  const keywords =
-    /\b(def|class|if|elif|else|for|while|try|except|finally|with|as|import|from|return|yield|pass|break|continue|lambda|and|or|not|is|in|None|True|False|self)\b/g;
-
-  let processed = escapeHtml(code);
-
-  // Comments # ...
-  processed = processed.replace(
-    /(#[^\r\n]*)/g,
-    `<span style="color: ${theme.comment}; font-style: italic;">$1</span>`
-  );
-
-  // Strings
-  processed = processed.replace(
-    /(&quot;.*?&quot;|'.*?')/g,
-    `<span style="color: ${theme.string};">$1</span>`
-  );
-
-  // Numbers
-  processed = processed.replace(
-    /\b(\d+(\.\d+)?)\b/g,
-    `<span style="color: ${theme.number};">$1</span>`
-  );
-
-  // Keywords
-  processed = processed.replace(
-    keywords,
-    `<span style="color: ${theme.keyword}; font-weight: 600;">$1</span>`
-  );
-
-  // Functions: def func_name
-  processed = processed.replace(
-    /\b([a-zA-Z_][a-zA-Z0-9_]*)(?=\s*\()/g,
-    `<span style="color: ${theme.function}; font-weight: 500;">$1</span>`
-  );
-
-  return processed;
-}
-
-function highlightMarkdown(code: string, theme: EditorTheme): string {
-  let escaped = escapeHtml(code);
-
-  // Headers #
-  escaped = escaped.replace(
-    /^(#{1,6}\s+.*$)/gm,
-    `<span style="color: ${theme.keyword}; font-weight: 700;">$1</span>`
-  );
-
-  // Bold & Italic
-  escaped = escaped.replace(
-    /(\*\*.*?\*\*|__.*?__)/g,
-    `<span style="color: ${theme.function}; font-weight: 600;">$1</span>`
-  );
-
-  // Inline code `code`
-  escaped = escaped.replace(
-    /(`[^`]+`)/g,
-    `<span style="color: ${theme.string}; background: rgba(255,255,255,0.06); border-radius: 3px; padding: 0 3px;">$1</span>`
-  );
-
-  // Links [text](url)
-  escaped = escaped.replace(
-    /(\[[^\]]+\])(\([^)]+\))/g,
-    `<span style="color: ${theme.attribute};">$1</span><span style="color: ${theme.operator};">$2</span>`
-  );
-
-  return escaped;
 }
