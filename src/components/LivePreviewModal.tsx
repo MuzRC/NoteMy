@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, memo } from 'react';
 import {
   X,
   RotateCw,
@@ -23,7 +23,7 @@ interface LivePreviewModalProps {
   theme: EditorTheme;
 }
 
-export const LivePreviewModal: React.FC<LivePreviewModalProps> = ({
+export const LivePreviewModal: React.FC<LivePreviewModalProps> = memo(({
   isOpen,
   onClose,
   files,
@@ -39,8 +39,10 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = ({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const consoleBottomRef = useRef<HTMLDivElement>(null);
 
-  // Generate combined HTML bundle
+  // Generate combined HTML bundle only when modal is open
   const htmlContent = useMemo(() => {
+    if (!isOpen) return '';
+
     const htmlFile =
       files.find((f) => f.name.toLowerCase() === 'index.html' && !f.isFolder) ||
       files.find((f) => f.language === 'html' && !f.isFolder);
@@ -138,7 +140,6 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = ({
         if (linkRegex.test(doc)) {
           doc = doc.replace(linkRegex, styleTag);
         } else {
-          // If not linked explicitly, inject before </head>
           doc = doc.replace('</head>', `${styleTag}</head>`);
         }
       });
@@ -158,10 +159,12 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = ({
       });
 
     return doc;
-  }, [files, keyCounter]);
+  }, [isOpen, files, keyCounter]);
 
-  // Handle messages posted from preview iframe
+  // Handle messages posted from preview iframe only when open
   useEffect(() => {
+    if (!isOpen) return;
+
     const handleMessage = (event: MessageEvent) => {
       if (event.data && event.data.source === 'acode-preview-console') {
         const { type, args, timestamp } = event.data;
@@ -178,7 +181,7 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = ({
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, []);
+  }, [isOpen]);
 
   // Auto-scroll console to bottom
   useEffect(() => {
@@ -200,7 +203,6 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = ({
     if (!replInput.trim()) return;
 
     const code = replInput.trim();
-    // Add command echo to console
     setConsoleMessages((prev) => [
       ...prev,
       {
@@ -211,7 +213,6 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = ({
       },
     ]);
 
-    // Send code to iframe for execution
     if (iframeRef.current && iframeRef.current.contentWindow) {
       iframeRef.current.contentWindow.postMessage(
         { source: 'acode-repl-eval', code },
@@ -249,7 +250,7 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/75 backdrop-blur-xs animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 animate-in fade-in duration-150">
       <div
         className="relative w-full max-w-5xl h-[92vh] sm:h-[88vh] flex flex-col rounded-2xl border shadow-2xl overflow-hidden transition-all"
         style={{
@@ -482,4 +483,6 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = ({
       </div>
     </div>
   );
-};
+});
+
+LivePreviewModal.displayName = 'LivePreviewModal';
