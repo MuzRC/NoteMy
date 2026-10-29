@@ -1,5 +1,6 @@
 {
-"appId": "com.muzrc.notemy",
-"appName": "NoteMy",
-"webDir": "dist"
+  "appId": "com.muzrc.notemy",
+  "appName": "NoteMy",
+  "webDir": "dist",
+  "bundledWebRuntime": false
 }
