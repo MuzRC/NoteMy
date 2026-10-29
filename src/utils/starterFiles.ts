@@ -1,12 +1,22 @@
 import { FileItem } from '../types/editor';
 
+export interface ProjectTemplate {
+  id: string;
+  name: string;
+  title: string;
+  description: string;
+  category?: string;
+  icon?: string;
+  files: FileItem[];
+}
+
 /**
  * Pengesan bahasa berdasarkan sambungan nama fail.
  * Menyokong TypeScript (.ts, .tsx), JavaScript (.js, .jsx), HTML, CSS, JSON, Markdown, dll.
  */
 export function detectLanguage(fileName: string): string {
   if (!fileName || !fileName.includes('.')) return 'text';
-  
+
   const ext = fileName.split('.').pop()?.toLowerCase() || '';
 
   switch (ext) {
@@ -40,7 +50,7 @@ export function detectLanguage(fileName: string): string {
 }
 
 /**
- * Fail permulaan default sekiranya localStorage masih kosong.
+ * Fail permulaan lalai sekiranya localStorage masih kosong.
  */
 export const DEFAULT_FILES: FileItem[] = [
   {
@@ -65,7 +75,7 @@ export const DEFAULT_FILES: FileItem[] = [
     <div class="badge">NoteMy Web & Mobile</div>
     <h1>Halo dari Editor NoteMy!</h1>
     <p>Ubah kode di editor dan tekan <strong>Run</strong> untuk melihat hasil langsung.</p>
-    
+
     <div class="counter-box">
       <span class="count-label">Nilai Hitungan:</span>
       <div id="count" class="count-num">0</div>
@@ -230,5 +240,181 @@ if (btnDec) {
 }
 
 console.log('Aplikasi NoteMy siap dijalankan!');`,
+  },
+];
+
+/**
+ * Koleksi Templat Projek untuk TemplatesModal.tsx
+ */
+export const TEMPLATES: ProjectTemplate[] = [
+  {
+    id: 'starter-counter',
+    name: 'Aplikasi Kaunter Interaktif',
+    title: 'Aplikasi Kaunter Interaktif',
+    description: 'Templat asas HTML, CSS, dan JavaScript interaktif dengan fungsi butang kaunter.',
+    category: 'Starter',
+    icon: 'layout',
+    files: DEFAULT_FILES,
+  },
+  {
+    id: 'blank-web',
+    name: 'Projek Web Kosong',
+    title: 'Projek Web Kosong',
+    description: 'Fail bersih index.html, styles.css, dan app.js sedia untuk mula dari awal.',
+    category: 'Blank',
+    icon: 'file-code',
+    files: [
+      {
+        id: 'b1',
+        name: 'index.html',
+        path: '/index.html',
+        language: 'html',
+        isFolder: false,
+        parentId: null,
+        isOpen: true,
+        isUnsaved: false,
+        content: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projek Baru</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>Selamat Datang ke NoteMy</h1>
+  <script src="app.js"></script>
+</body>
+</html>`,
+      },
+      {
+        id: 'b2',
+        name: 'styles.css',
+        path: '/styles.css',
+        language: 'css',
+        isFolder: false,
+        parentId: null,
+        isOpen: false,
+        isUnsaved: false,
+        content: `body {
+  margin: 0;
+  padding: 24px;
+  font-family: system-ui, sans-serif;
+  background-color: #0f172a;
+  color: #f8fafc;
+}`,
+      },
+      {
+        id: 'b3',
+        name: 'app.js',
+        path: '/app.js',
+        language: 'javascript',
+        isFolder: false,
+        parentId: null,
+        isOpen: false,
+        isUnsaved: false,
+        content: `console.log('Projek baru berjaya dimuatkan.');`,
+      },
+    ],
+  },
+  {
+    id: 'canvas-particle',
+    name: 'Animasi Canvas Partikel',
+    title: 'Animasi Canvas Partikel',
+    description: 'Contoh animasi interaktif menggunakan HTML5 Canvas dan JavaScript requestAnimationFrame.',
+    category: 'Graphic',
+    icon: 'sparkles',
+    files: [
+      {
+        id: 'c1',
+        name: 'index.html',
+        path: '/index.html',
+        language: 'html',
+        isFolder: false,
+        parentId: null,
+        isOpen: true,
+        isUnsaved: false,
+        content: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Animasi Canvas</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <canvas id="particleCanvas"></canvas>
+  <script src="app.js"></script>
+</body>
+</html>`,
+      },
+      {
+        id: 'c2',
+        name: 'styles.css',
+        path: '/styles.css',
+        language: 'css',
+        isFolder: false,
+        parentId: null,
+        isOpen: false,
+        isUnsaved: false,
+        content: `body, html {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #020617;
+}
+
+canvas {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+}`,
+      },
+      {
+        id: 'c3',
+        name: 'app.js',
+        path: '/app.js',
+        language: 'javascript',
+        isFolder: false,
+        parentId: null,
+        isOpen: false,
+        isUnsaved: false,
+        content: `const canvas = document.getElementById('particleCanvas');
+const ctx = canvas.getContext('2d');
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const particles = Array.from({ length: 40 }, () => ({
+  x: Math.random() * canvas.width,
+  y: Math.random() * canvas.height,
+  radius: Math.random() * 3 + 1,
+  vx: (Math.random() - 0.5) * 1.5,
+  vy: (Math.random() - 0.5) * 1.5,
+}));
+
+function animate() {
+  ctx.fillStyle = 'rgba(2, 6, 23, 0.2)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  particles.forEach((p) => {
+    p.x += p.vx;
+    p.y += p.vy;
+
+    if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+    if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+    ctx.fillStyle = '#38bdf8';
+    ctx.fill();
+  });
+
+  requestAnimationFrame(animate);
+}
+
+animate();`,
+      },
+    ],
   },
 ];
