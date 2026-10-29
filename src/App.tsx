@@ -15,7 +15,7 @@ import { exportProjectZip } from './utils/projectZip';
 const STORAGE_FILES_KEY = 'acode_files_v2';
 const STORAGE_SETTINGS_KEY = 'acode_settings_v2';
 
-// 1. Komponen Status Bar Terasing (Elak Re-render Keseluruhan Skrin)
+// 1. Komponen Bar Status Terasing (Bahasa Melayu & Ringan untuk Telefon)
 interface StatusBarProps {
   theme: EditorTheme;
   language?: string;
@@ -31,7 +31,9 @@ const StatusBar = memo(({ theme, language, tabSize }: StatusBarProps) => {
 
   useEffect(() => {
     const handleCursorUpdate = (e: CustomEvent<CursorPosition>) => {
-      setCursorPos(e.detail);
+      if (e.detail) {
+        setCursorPos(e.detail);
+      }
     };
 
     window.addEventListener('notemy-cursor-change' as any, handleCursorUpdate);
@@ -51,7 +53,7 @@ const StatusBar = memo(({ theme, language, tabSize }: StatusBarProps) => {
     >
       <div className="flex items-center gap-3">
         <span className="tabular-nums">
-          Ln {cursorPos.line}, Kol {cursorPos.column}
+          Ln {cursorPos.line}, Lajur {cursorPos.column}
         </span>
         {cursorPos.selectionLength > 0 && (
           <span className="hidden sm:inline tabular-nums">
@@ -63,9 +65,9 @@ const StatusBar = memo(({ theme, language, tabSize }: StatusBarProps) => {
       <div className="flex items-center gap-3">
         <span className="hidden sm:inline">UTF-8</span>
         <span className="uppercase text-sky-400 font-semibold">
-          {language || 'TEXT'}
+          {language || 'TEKS'}
         </span>
-        <span>Spasi: {tabSize}</span>
+        <span>Jarak: {tabSize}</span>
       </div>
     </footer>
   );
@@ -74,7 +76,7 @@ const StatusBar = memo(({ theme, language, tabSize }: StatusBarProps) => {
 StatusBar.displayName = 'StatusBar';
 
 export default function App() {
-  // Load files from localStorage or defaults
+  // Muat fail dari localStorage atau guna nilai lalai
   const [files, setFiles] = useState<FileItem[]>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_FILES_KEY);
@@ -83,18 +85,18 @@ export default function App() {
         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
       }
     } catch (e) {
-      console.warn('Failed to parse stored files', e);
+      console.warn('Gagal memuat fail tersimpan', e);
     }
     return DEFAULT_FILES;
   });
 
-  // Settings
+  // Tetapan Aplikasi
   const [settings, setSettings] = useState<EditorSettings>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_SETTINGS_KEY);
       if (stored) return JSON.parse(stored);
     } catch (e) {
-      console.warn('Failed to parse stored settings', e);
+      console.warn('Gagal memuat tetapan tersimpan', e);
     }
     return {
       theme: 'acode-dark',
@@ -107,61 +109,61 @@ export default function App() {
     };
   });
 
-  // Active file
+  // Fail aktif semasa
   const [activeFileId, setActiveFileId] = useState<string | null>(() => {
     const firstOpen = DEFAULT_FILES.find((f) => f.isOpen && !f.isFolder);
     return firstOpen ? firstOpen.id : 'f1';
   });
 
-  // Editor ref & Undo state
+  // Editor ref & status Undo/Redo
   const editorRef = useRef<CodeEditorHandle>(null);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
 
-  // UI state
+  // Status Antara Muka (UI)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isTemplatesOpen, setIsTemplatesOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
-  // Current active theme
+  // Tema aktif semasa
   const currentTheme = useMemo(() => {
     return THEMES[settings.theme] || THEMES['acode-dark'];
   }, [settings.theme]);
 
-  // Find active file
+  // Cari fail yang sedang aktif
   const activeFile = useMemo(() => {
     return files.find((f) => f.id === activeFileId) || null;
   }, [files, activeFileId]);
 
-  // 2. Debounce Simpanan Files ke localStorage (800ms) - elak lag masa menaip
+  // Simpan fail ke localStorage dengan Debounce 800ms (elak papan kekunci telefon lag)
   useEffect(() => {
     const timer = setTimeout(() => {
       try {
         localStorage.setItem(STORAGE_FILES_KEY, JSON.stringify(files));
       } catch (e) {
-        console.error('Failed to save files to storage', e);
+        console.error('Gagal menyimpan fail ke storan', e);
       }
     }, 800);
 
     return () => clearTimeout(timer);
   }, [files]);
 
-  // Debounce Simpanan Settings
+  // Simpan tetapan ke localStorage dengan Debounce 500ms
   useEffect(() => {
     const timer = setTimeout(() => {
       try {
         localStorage.setItem(STORAGE_SETTINGS_KEY, JSON.stringify(settings));
       } catch (e) {
-        console.error('Failed to save settings to storage', e);
+        console.error('Gagal menyimpan tetapan ke storan', e);
       }
     }, 500);
 
     return () => clearTimeout(timer);
   }, [settings]);
 
-  // 3. Callback Kursor - Tembak Event Tanpa Render Semula App
+  // Hantar posisi kursor terus ke Bar Status tanpa re-render skrin utama
   const handleCursorChange = useCallback((pos: CursorPosition) => {
     window.dispatchEvent(
       new CustomEvent('notemy-cursor-change', { detail: pos })
@@ -173,10 +175,10 @@ export default function App() {
     setCanRedo(r);
   }, []);
 
-  // Keyboard shortcut listeners (Ctrl+S, Ctrl+F, Ctrl+Enter)
+  // Pintasan Papan Kekunci (Ctrl+S, Ctrl+F, Ctrl+Enter)
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
-      // Ctrl+S / Cmd+S: Save file
+      // Ctrl+S / Cmd+S: Simpan fail
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
         e.preventDefault();
         if (activeFileId) {
@@ -189,14 +191,14 @@ export default function App() {
         return;
       }
 
-      // Ctrl+F / Cmd+F: Toggle Search
+      // Ctrl+F / Cmd+F: Buka/Tutup Carian
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
         e.preventDefault();
         setIsSearchOpen((prev) => !prev);
         return;
       }
 
-      // Ctrl+Enter / Cmd+Enter: Run Live Preview
+      // Ctrl+Enter / Cmd+Enter: Jalankan Pratonton Langsung
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         e.preventDefault();
         setIsPreviewOpen(true);
@@ -208,7 +210,7 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
   }, [activeFileId]);
 
-  // File operations (Memoized dengan useCallback)
+  // Operasi Fail
   const handleSelectFile = useCallback((fileId: string) => {
     setFiles((prev) =>
       prev.map((f) => (f.id === fileId ? { ...f, isOpen: true } : f))
@@ -256,7 +258,7 @@ export default function App() {
         id: 'f_' + Math.random().toString(36).substring(2, 9),
         name,
         path: '/' + name,
-        content: isFolder ? '' : `// Berkas baru: ${name}\n`,
+        content: isFolder ? '' : `// Fail baru: ${name}\n`,
         language: detectLanguage(name),
         isFolder,
         parentId: parentId || null,
@@ -338,7 +340,7 @@ export default function App() {
     setActiveFileId(first ? first.id : templateFiles[0]?.id || null);
   }, []);
 
-  // UI Toggles
+  // Togol Antara Muka (UI)
   const handleToggleSidebar = useCallback(() => setIsSidebarOpen((prev) => !prev), []);
   const handleCloseSidebar = useCallback(() => setIsSidebarOpen(false), []);
   const handleOpenPreview = useCallback(() => setIsPreviewOpen(true), []);
@@ -354,7 +356,7 @@ export default function App() {
     setSettings((prev) => ({ ...prev, ...newVals }));
   }, []);
 
-  // QuickKeysBar Actions
+  // Tindakan QuickKeysBar
   const handleInsertText = useCallback((text: string, offset?: number) => {
     editorRef.current?.insertText(text, offset);
   }, []);
@@ -379,7 +381,7 @@ export default function App() {
         color: currentTheme.textColor,
       }}
     >
-      {/* 1. Header (Top Bar Contract) */}
+      {/* 1. Header (Menu Atas) */}
       <Header
         theme={currentTheme}
         isSidebarOpen={isSidebarOpen}
@@ -393,9 +395,9 @@ export default function App() {
         isUnsaved={activeFile?.isUnsaved}
       />
 
-      {/* 2. Workspace Center (Sidebar + Main Editor) */}
+      {/* 2. Ruang Kerja Utama (Sidebar + Penyunting Kod) */}
       <div className="flex-1 flex overflow-hidden relative">
-        {/* File Explorer Sidebar */}
+        {/* Penjelajah Fail (Sidebar) */}
         <FileExplorer
           files={files}
           activeFileId={activeFileId}
@@ -409,9 +411,9 @@ export default function App() {
           onImportFiles={handleImportFiles}
         />
 
-        {/* Main Editor Canvas Container */}
+        {/* Bekas Penyunting Kod */}
         <div className="flex-1 flex flex-col h-full overflow-hidden min-w-0">
-          {/* Tab Bar for open files */}
+          {/* Bar Tab Fail Terbuka */}
           <TabBar
             files={files}
             activeFileId={activeFileId}
@@ -421,7 +423,7 @@ export default function App() {
             onCloseAll={handleCloseAllTabs}
           />
 
-          {/* Active File Editor */}
+          {/* Editor Fail Aktif */}
           {activeFile ? (
             <div className="flex-1 flex flex-col overflow-hidden relative">
               <CodeEditor
@@ -444,30 +446,30 @@ export default function App() {
             >
               <div className="max-w-md space-y-3">
                 <h3 className="text-base font-semibold text-slate-300">
-                  Tidak Ada Berkas Aktif
+                  Tiada Fail Aktif
                 </h3>
                 <p className="text-xs text-slate-400">
-                  Buka berkas dari penjelajah di panel kiri, atau gunakan tombol di bawah untuk membuat berkas baru.
+                  Buka fail daripada penjelajah di panel kiri, atau gunakan butang di bawah untuk cipta fail baru.
                 </p>
                 <div className="flex justify-center gap-2 pt-2">
                   <button
                     onClick={handleToggleSidebar}
                     className="px-3.5 py-1.5 rounded-lg bg-sky-500 text-slate-950 font-bold text-xs"
                   >
-                    Buka Penjelajah Berkas
+                    Buka Penjelajah Fail
                   </button>
                   <button
                     onClick={() => handleCreateFile('main.js', false)}
                     className="px-3.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-white text-xs font-medium"
                   >
-                    + Buat main.js
+                    + Cipta main.js
                   </button>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Virtual Quick-Keys Toolbar (Acode Mobile Signature) */}
+          {/* Bar Kunci Pantas (Quick-Keys Toolbar) */}
           {settings.quickKeysVisible && activeFile && (
             <QuickKeysBar
               theme={currentTheme}
@@ -480,7 +482,7 @@ export default function App() {
             />
           )}
 
-          {/* Bottom Status Bar - Sekarang Terasing & Ringan */}
+          {/* Bar Status Bawah - Bahasa Melayu & Ringan */}
           <StatusBar
             theme={currentTheme}
             language={activeFile?.language}
@@ -489,7 +491,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* 3. Modals */}
+      {/* 3. Modal & Dialog */}
       <LivePreviewModal
         isOpen={isPreviewOpen}
         onClose={handleClosePreview}
