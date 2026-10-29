@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - master
 
 jobs:
   build-apk:
@@ -59,10 +60,8 @@ jobs:
           UNSIGNED_APK=$(find android/app/build/outputs/apk/release -name "*.apk" | head -n 1)
           echo "Found unsigned APK: $UNSIGNED_APK"
           
-          # Zipalign fail APK
           $BUILD_TOOLS_DIR/zipalign -v -p 4 "$UNSIGNED_APK" NoteMy-aligned.apk
           
-          # Tandatangan APK guna Secret Keystore
           $BUILD_TOOLS_DIR/apksigner sign \
             --ks notemy-release-key.jks \
             --ks-key-alias "${{ secrets.KEY_ALIAS }}" \
@@ -71,7 +70,6 @@ jobs:
             --out NoteMy-release-signed.apk \
             NoteMy-aligned.apk
             
-          # Sahkan signature
           $BUILD_TOOLS_DIR/apksigner verify --verbose NoteMy-release-signed.apk
 
       - name: Upload Signed Release APK
