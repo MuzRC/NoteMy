@@ -32,14 +32,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           color: theme.textColor,
         }}
       >
-        {/* Modal Header */}
+        {/* Header Modal */}
         <div
           className="flex items-center justify-between px-5 h-13 border-b select-none shrink-0"
           style={{ borderColor: theme.borderColor }}
         >
           <div className="flex items-center gap-2">
             <Sliders size={18} className="text-sky-400" />
-            <h2 className="font-semibold text-sm sm:text-base">Pengaturan Editor</h2>
+            <h2 className="font-semibold text-sm sm:text-base">Tetapan Editor</h2>
           </div>
           <button
             onClick={onClose}
@@ -49,9 +49,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </button>
         </div>
 
-        {/* Modal Body */}
+        {/* Badan Modal */}
         <div className="flex-1 overflow-y-auto p-5 space-y-6 text-xs sm:text-sm">
-          {/* Section 1: Themes */}
+          {/* Bahagian 1: Tema */}
           <div className="space-y-3">
             <div className="flex items-center gap-2 text-slate-300 font-semibold text-xs uppercase tracking-wider">
               <Palette size={14} className="text-sky-400" />
@@ -100,18 +100,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           </div>
 
-          {/* Section 2: Typography & Sizing */}
+          {/* Bahagian 2: Tipografi & Saiz */}
           <div className="space-y-3">
             <div className="flex items-center gap-2 text-slate-300 font-semibold text-xs uppercase tracking-wider">
               <Type size={14} className="text-sky-400" />
-              <span>Ukuran Font & Lekukan (Indentation)</span>
+              <span>Saiz Fon & Lekukan (Inden)</span>
             </div>
 
             <div className="space-y-4 p-4 rounded-xl bg-black/20 border border-white/5">
-              {/* Font size */}
+              {/* Saiz fon */}
               <div>
                 <div className="flex justify-between items-center mb-1.5">
-                  <label className="text-xs text-slate-300">Ukuran Huruf Editor</label>
+                  <label className="text-xs text-slate-300">Saiz Fon Editor</label>
                   <span className="font-mono text-xs text-sky-400 font-bold tabular-nums">
                     {settings.fontSize}px
                   </span>
@@ -129,9 +129,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 />
               </div>
 
-              {/* Tab Size */}
+              {/* Saiz Tab */}
               <div className="flex items-center justify-between pt-2 border-t border-white/5">
-                <span className="text-xs text-slate-300">Lebar Tab (Spasi)</span>
+                <span className="text-xs text-slate-300">Lebar Tab (Ruang)</span>
                 <div className="flex gap-1.5">
                   {[2, 4].map((size) => (
                     <button
@@ -143,7 +143,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           : 'bg-white/10 text-slate-400 hover:text-white'
                       }`}
                     >
-                      {size} Spasi
+                      {size} Ruang
                     </button>
                   ))}
                 </div>
@@ -151,17 +151,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           </div>
 
-          {/* Section 3: Editor Preferences */}
+          {/* Bahagian 3: Pilihan Editor */}
           <div className="space-y-3">
             <div className="flex items-center gap-2 text-slate-300 font-semibold text-xs uppercase tracking-wider">
               <Sliders size={14} className="text-sky-400" />
-              <span>Preferensi Penulisan Kode</span>
+              <span>Pilihan Penulisan Kod</span>
             </div>
 
             <div className="divide-y divide-white/5 p-4 rounded-xl bg-black/20 border border-white/5 space-y-3">
-              {/* Word wrap */}
+              {/* Balut baris */}
               <label className="flex items-center justify-between cursor-pointer pt-1">
-                <span className="text-xs text-slate-300">Word Wrap (Bungkus Baris Panjang)</span>
+                <span className="text-xs text-slate-300">Balut Teks (Word Wrap Baris Panjang)</span>
                 <input
                   type="checkbox"
                   checked={settings.wordWrap}
@@ -170,9 +170,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 />
               </label>
 
-              {/* Line numbers */}
+              {/* Nombor baris */}
               <label className="flex items-center justify-between cursor-pointer pt-3">
-                <span className="text-xs text-slate-300">Tampilkan Nomor Baris</span>
+                <span className="text-xs text-slate-300">Papar Nombor Baris</span>
                 <input
                   type="checkbox"
                   checked={settings.showLineNumbers}
@@ -183,10 +183,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 />
               </label>
 
-              {/* Auto close brackets */}
+              {/* Tutup kurungan automatik */}
               <label className="flex items-center justify-between cursor-pointer pt-3">
                 <span className="text-xs text-slate-300">
-                  Tutup Kurung & Tanda Kutip Otomatis
+                  Tutup Kurungan & Tanda Petik Automatik
                 </span>
                 <input
                   type="checkbox"
@@ -200,13 +200,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           </div>
 
-          {/* Section 4: Reset Danger Zone */}
+          {/* Bahagian 4: Tetapan Semula (Zon Bahaya) */}
           <div className="pt-2">
             <button
               onClick={() => {
                 if (
                   confirm(
-                    'Apakah Anda yakin ingin mengatur ulang semua berkas ke contoh default? Perubahan yang belum disimpan akan hilang.'
+                    'Adakah anda pasti mahu menetapkan semula semua fail ke contoh lalai? Segala perubahan yang belum disimpan akan hilang.'
                   )
                 ) {
                   onResetProject();
@@ -216,12 +216,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               className="w-full flex items-center justify-center gap-2 p-2.5 rounded-xl text-xs font-semibold text-red-400 bg-red-500/10 hover:bg-red-500/20 transition-colors"
             >
               <RotateCcw size={14} />
-              <span>Reset Proyek ke Berkas Awal</span>
+              <span>Tetapkan Semula Projek ke Fail Asal</span>
             </button>
           </div>
         </div>
 
-        {/* Modal Footer */}
+        {/* Bawah Modal */}
         <div
           className="flex justify-end p-4 border-t select-none"
           style={{ borderColor: theme.borderColor }}
