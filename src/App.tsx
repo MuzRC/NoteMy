@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react';
+import { App as CapApp } from '@capacitor/app';
 import { Header } from './components/Header';
 import { FileExplorer } from './components/FileExplorer';
 import { TabBar } from './components/TabBar';
@@ -173,6 +174,78 @@ export default function App() {
   const handleUndoStateChange = useCallback((u: boolean, r: boolean) => {
     setCanUndo(u);
     setCanRedo(r);
+  }, []);
+
+  // Tangkap fail bila pengguna buka NoteMy daripada pilihan "Open with" Android
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadExternalFile = async (urlString: string) => {
+      if (!urlString) return;
+      try {
+        const rawName = urlString.split('/').pop() || 'Fail_Luar.txt';
+        const cleanName = decodeURIComponent(rawName);
+
+        // Ambil isi kandungan fail
+        const response = await fetch(urlString);
+        const textContent = await response.text();
+
+        if (!isMounted) return;
+
+        setFiles((prev) => {
+          // Semak jika fail dengan nama sama sudah sedia terbuka
+          const existing = prev.find(
+            (f) => f.name.toLowerCase() === cleanName.toLowerCase() && !f.isFolder
+          );
+
+          if (existing) {
+            setActiveFileId(existing.id);
+            return prev.map((f) =>
+              f.id === existing.id
+                ? { ...f, content: textContent, isOpen: true, isUnsaved: false }
+                : f
+            );
+          }
+
+          // Cipta tab fail baharu jika belum ada
+          const newExternalFile: FileItem = {
+            id: 'ext_' + Math.random().toString(36).substring(2, 9),
+            name: cleanName,
+            path: '/' + cleanName,
+            content: textContent,
+            language: detectLanguage(cleanName),
+            isFolder: false,
+            parentId: null,
+            isOpen: true,
+            isUnsaved: false,
+          };
+
+          setActiveFileId(newExternalFile.id);
+          return [...prev, newExternalFile];
+        });
+      } catch (err) {
+        console.warn('Gagal membaca fail luaran Android:', err);
+      }
+    };
+
+    // 1. Dengar jika fail dibuka semasa app sedang berjalan di latar belakang (warm start)
+    const listenerPromise = CapApp.addListener('appUrlOpen', (data) => {
+      if (data?.url) {
+        loadExternalFile(data.url);
+      }
+    });
+
+    // 2. Semak jika app baru dimulakan secara terus melalui fail (cold start)
+    CapApp.getLaunchUrl().then((launchUrl) => {
+      if (launchUrl?.url) {
+        loadExternalFile(launchUrl.url);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      listenerPromise.then((sub) => sub.remove()).catch(() => {});
+    };
   }, []);
 
   // Pintasan Papan Kekunci (Ctrl+S, Ctrl+F, Ctrl+Enter)
