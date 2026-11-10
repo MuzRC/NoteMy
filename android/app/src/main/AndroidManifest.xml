@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Kebenaran asas aplikasi -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+        <activity
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation"
+            android:name=".MainActivity"
+            android:label="@string/title_activity_main"
+            android:theme="@style/AppTheme.NoActionBarLaunch"
+            android:launchMode="singleTask"
+            android:exported="true">
+
+            <!-- 1. Ikon pelancar biasa di skrin telefon (Launcher) -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- 2. Menu 'Open with': Untuk semua fail teks (txt, html, css, log, dll.) -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:mimeType="text/*" />
+            </intent-filter>
+
+            <!-- 3. Menu 'Open with': Untuk format kod & skrip berasaskan application MIME -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:mimeType="application/json" />
+                <data android:mimeType="application/javascript" />
+                <data android:mimeType="application/x-javascript" />
+                <data android:mimeType="application/xml" />
+                <data android:mimeType="text/xml" />
+            </intent-filter>
+
+            <!-- 4. Menu 'Open with': Sandaran berasaskan corak nama sambungan fail -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:mimeType="*/*" />
+                <data android:pathPattern=".*\\.txt" />
+                <data android:pathPattern=".*\\.js" />
+                <data android:pathPattern=".*\\.ts" />
+                <data android:pathPattern=".*\\.tsx" />
+                <data android:pathPattern=".*\\.jsx" />
+                <data android:pathPattern=".*\\.html" />
+                <data android:pathPattern=".*\\.css" />
+                <data android:pathPattern=".*\\.json" />
+                <data android:pathPattern=".*\\.md" />
+            </intent-filter>
+
+        </activity>
+
+        <!-- Penyedia fail perkongsian Capacitor (FileProvider) -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+    </application>
+
+</manifest>
