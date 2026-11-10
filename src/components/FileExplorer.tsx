@@ -11,6 +11,7 @@ import {
   ChevronRight,
   ChevronDown,
   X,
+  AlertTriangle,
 } from 'lucide-react';
 import { FileItem, EditorTheme } from '../types/editor';
 import { detectLanguage } from '../utils/starterFiles';
@@ -46,6 +47,10 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
   const [newItemName, setNewItemName] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
+  
+  // State untuk modal pengesahan padam (elak guna confirm() bawaan WebView)
+  const [fileToDelete, setFileToDelete] = useState<FileItem | null>(null);
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const toggleFolder = (folderId: string) => {
@@ -92,6 +97,13 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
       onImportFiles(results);
       if (fileInputRef.current) fileInputRef.current.value = '';
     });
+  };
+
+  const confirmDelete = () => {
+    if (fileToDelete) {
+      onDeleteFile(fileToDelete.id);
+      setFileToDelete(null);
+    }
   };
 
   const getFileIcon = (file: FileItem) => {
@@ -155,6 +167,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
 
           <div className="flex items-center gap-1">
             <button
+              type="button"
               onClick={() => {
                 setIsCreating('file');
                 setNewItemName('');
@@ -165,6 +178,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
               <FilePlus size={15} />
             </button>
             <button
+              type="button"
               onClick={() => {
                 setIsCreating('folder');
                 setNewItemName('');
@@ -175,6 +189,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
               <FolderPlus size={15} />
             </button>
             <button
+              type="button"
               onClick={() => fileInputRef.current?.click()}
               className="p-1 rounded hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
               title="Muat Naik / Import Fail"
@@ -182,6 +197,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
               <Upload size={15} />
             </button>
             <button
+              type="button"
               onClick={onClose}
               className="p-1 rounded hover:bg-white/10 text-slate-400 hover:text-white md:hidden"
               title="Tutup Panel"
@@ -262,7 +278,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                   }
                 }}
               >
-                <div className="flex items-center gap-2 truncate flex-1 mr-2">
+                <div className="flex items-center gap-2 truncate flex-1 mr-1">
                   {file.isFolder && (
                     <span className="text-slate-500">
                       {collapsedFolders[file.id] ? (
@@ -298,14 +314,18 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                   )}
                 </div>
 
-                {/* Butang tindakan semasa legar (hover) / fokus */}
+                {/* Butang tindakan - Nampak di mobile, hover di desktop */}
                 <div
-                  className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="flex items-center gap-0.5 opacity-80 md:opacity-0 md:group-hover:opacity-100 transition-opacity shrink-0"
                   onClick={(e) => e.stopPropagation()}
                 >
                   {!file.isFolder && (
                     <button
-                      onClick={() => downloadSingleFile(file)}
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        downloadSingleFile(file);
+                      }}
                       className="p-1 hover:bg-white/10 rounded text-slate-400 hover:text-white"
                       title="Muat Turun Fail Ini"
                     >
@@ -313,7 +333,9 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                     </button>
                   )}
                   <button
-                    onClick={() => {
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
                       setEditingId(file.id);
                       setEditingName(file.name);
                     }}
@@ -323,10 +345,10 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                     <Edit2 size={13} />
                   </button>
                   <button
-                    onClick={() => {
-                      if (confirm(`Padam fail ${file.name}?`)) {
-                        onDeleteFile(file.id);
-                      }
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setFileToDelete(file);
                     }}
                     className="p-1 hover:bg-red-500/20 rounded text-slate-400 hover:text-red-400"
                     title="Padam"
@@ -348,6 +370,50 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
           <span className="font-mono text-[10px] text-slate-600">NoteMy v2.0</span>
         </div>
       </aside>
+
+      {/* Modal Pengesahan Padam (Khas untuk Android WebView & Browser) */}
+      {fileToDelete && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-100"
+          onClick={() => setFileToDelete(null)}
+        >
+          <div
+            className="w-full max-w-xs p-4 rounded-2xl border shadow-2xl space-y-3"
+            style={{
+              backgroundColor: theme.appBarBg,
+              borderColor: theme.borderColor,
+              color: theme.textColor,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-2 text-red-400 font-semibold text-sm">
+              <AlertTriangle size={17} />
+              <span>Padam {fileToDelete.isFolder ? 'Folder' : 'Fail'}?</span>
+            </div>
+
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Kau pasti mau padam <span className="font-mono text-sky-400 font-bold">{fileToDelete.name}</span>? Tindakan ni inda boleh dibatalkan.
+            </p>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setFileToDelete(null)}
+                className="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 transition-colors"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={confirmDelete}
+                className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-red-500 hover:bg-red-600 text-white shadow-md active:scale-95 transition-all"
+              >
+                Padam
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
