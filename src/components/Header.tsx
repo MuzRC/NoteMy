@@ -42,7 +42,7 @@ export const Header: React.FC<HeaderProps> = ({
         borderColor: theme.borderColor,
       }}
     >
-      {/* Zone 1: Wordmark & Sidebar Toggle */}
+      {/* Bahagian 1: Logo & Togol Penjelajah Fail */}
       <div className="flex items-center gap-2.5 sm:gap-3.5 shrink-0">
         <button
           onClick={onToggleSidebar}
@@ -51,8 +51,8 @@ export const Header: React.FC<HeaderProps> = ({
             backgroundColor: isSidebarOpen ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
             color: isSidebarOpen ? theme.accentColor : theme.tabText,
           }}
-          title={isSidebarOpen ? 'Tutup Berkas' : 'Buka Berkas'}
-          aria-label="Toggle Berkas"
+          title={isSidebarOpen ? 'Tutup Penjelajah Fail' : 'Buka Penjelajah Fail'}
+          aria-label="Togol Penjelajah Fail"
         >
           <FolderTree size={19} />
         </button>
@@ -76,7 +76,7 @@ export const Header: React.FC<HeaderProps> = ({
         )}
       </div>
 
-      {/* Zone 2: Navigation & Tool Controls */}
+      {/* Bahagian 2: Navigasi & Alat Kawalan */}
       <nav className="flex items-center gap-1 sm:gap-2">
         <button
           onClick={onToggleSearch}
@@ -92,34 +92,34 @@ export const Header: React.FC<HeaderProps> = ({
           onClick={onOpenTemplates}
           className="p-2 sm:px-2.5 sm:py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors hover:opacity-90 active:scale-95"
           style={{ color: theme.tabText }}
-          title="Pilih Template Proyek"
+          title="Pilih Templat Projek"
         >
           <LayoutTemplate size={16} />
-          <span className="hidden sm:inline">Template</span>
+          <span className="hidden sm:inline">Templat</span>
         </button>
 
         <button
           onClick={onExportZip}
           className="p-2 sm:px-2.5 sm:py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors hover:opacity-90 active:scale-95"
           style={{ color: theme.tabText }}
-          title="Ekspor Proyek ke ZIP"
+          title="Eksport Projek ke ZIP"
         >
           <Download size={16} />
-          <span className="hidden sm:inline">Ekspor ZIP</span>
+          <span className="hidden sm:inline">Eksport ZIP</span>
         </button>
 
         <button
           onClick={onOpenSettings}
           className="p-2 sm:px-2.5 sm:py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors hover:opacity-90 active:scale-95"
           style={{ color: theme.tabText }}
-          title="Pengaturan Editor & Tema"
+          title="Tetapan Editor & Tema"
         >
           <Settings size={16} />
-          <span className="hidden sm:inline">Setelan</span>
+          <span className="hidden sm:inline">Tetapan</span>
         </button>
       </nav>
 
-      {/* Zone 3: Primary Action (Run Preview) */}
+      {/* Bahagian 3: Tindakan Utama (Jalankan Pratonton) */}
       <div className="flex items-center gap-2 shrink-0">
         <button
           onClick={onRunPreview}
@@ -128,10 +128,10 @@ export const Header: React.FC<HeaderProps> = ({
             backgroundColor: '#10B981',
             color: '#FFFFFF',
           }}
-          title="Jalankan Web Preview & Console"
+          title="Jalankan Pratonton Web & Konsol"
         >
           <Play size={14} className="fill-current" />
-          <span>Run</span>
+          <span>Jalankan</span>
         </button>
       </div>
     </header>
