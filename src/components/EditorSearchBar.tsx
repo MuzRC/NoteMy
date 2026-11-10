@@ -54,6 +54,7 @@ export const EditorSearchBar: React.FC<EditorSearchBarProps> = memo(({
         borderColor: theme.borderColor,
       }}
     >
+      {/* Medan Input Carian */}
       <div className="flex items-center gap-1.5 flex-1 min-w-[180px]">
         <Search size={14} className="text-slate-400 shrink-0" />
         <input
@@ -78,6 +79,7 @@ export const EditorSearchBar: React.FC<EditorSearchBarProps> = memo(({
         </button>
       </div>
 
+      {/* Medan Input Ganti */}
       <div className="flex items-center gap-1.5 flex-1 min-w-[180px]">
         <Replace size={14} className="text-slate-400 shrink-0" />
         <input
@@ -105,12 +107,13 @@ export const EditorSearchBar: React.FC<EditorSearchBarProps> = memo(({
         </button>
       </div>
 
+      {/* Navigasi Padanan & Butang Tutup */}
       <div className="flex items-center gap-1 shrink-0">
         <span className="text-[11px] text-slate-400 tabular-nums px-1">
           {searchMatches.length > 0
             ? `${currentMatchIndex + 1}/${searchMatches.length}`
             : searchQuery
-            ? '0 hasil'
+            ? '0 padanan'
             : ''}
         </span>
 
@@ -119,7 +122,7 @@ export const EditorSearchBar: React.FC<EditorSearchBarProps> = memo(({
           onClick={onPrevMatch}
           disabled={searchMatches.length === 0}
           className="p-1 hover:bg-white/10 rounded disabled:opacity-40 text-slate-400 hover:text-white"
-          title="Hasil Sebelumnya"
+          title="Padanan Terdahulu"
         >
           <ChevronUp size={16} />
         </button>
@@ -128,7 +131,7 @@ export const EditorSearchBar: React.FC<EditorSearchBarProps> = memo(({
           onClick={onNextMatch}
           disabled={searchMatches.length === 0}
           className="p-1 hover:bg-white/10 rounded disabled:opacity-40 text-slate-400 hover:text-white"
-          title="Hasil Berikutnya"
+          title="Padanan Seterusnya"
         >
           <ChevronDown size={16} />
         </button>
@@ -136,7 +139,7 @@ export const EditorSearchBar: React.FC<EditorSearchBarProps> = memo(({
           type="button"
           onClick={onClose}
           className="p-1 hover:bg-white/10 rounded text-slate-400 hover:text-white ml-1"
-          title="Tutup Pencarian"
+          title="Tutup Carian"
         >
           <X size={16} />
         </button>
