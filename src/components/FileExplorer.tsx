@@ -126,7 +126,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
 
   return (
     <>
-      {/* Mobile Backdrop overlay */}
+      {/* Lapisan Tirai Paparan Telefon */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-30 md:hidden backdrop-blur-xs transition-opacity"
@@ -134,7 +134,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
         />
       )}
 
-      {/* Sidebar Container */}
+      {/* Bekas Bar Sisi (Sidebar) */}
       <aside
         className={`fixed md:static inset-y-0 left-0 z-40 w-68 md:w-64 border-r flex flex-col shrink-0 transition-transform duration-200 ease-in-out md:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full md:hidden'
@@ -144,13 +144,13 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
           borderColor: theme.borderColor,
         }}
       >
-        {/* Explorer Header */}
+        {/* Header Penjelajah */}
         <div
           className="flex items-center justify-between px-3 h-11 border-b select-none shrink-0"
           style={{ borderColor: theme.borderColor }}
         >
           <span className="text-xs font-semibold tracking-wider uppercase text-slate-400">
-            Penjelajah Berkas
+            Penjelajah Fail
           </span>
 
           <div className="flex items-center gap-1">
@@ -160,7 +160,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                 setNewItemName('');
               }}
               className="p-1 rounded hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
-              title="Buat Berkas Baru"
+              title="Cipta Fail Baharu"
             >
               <FilePlus size={15} />
             </button>
@@ -170,14 +170,14 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                 setNewItemName('');
               }}
               className="p-1 rounded hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
-              title="Buat Folder Baru"
+              title="Cipta Folder Baharu"
             >
               <FolderPlus size={15} />
             </button>
             <button
               onClick={() => fileInputRef.current?.click()}
               className="p-1 rounded hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
-              title="Unggah / Impor Berkas"
+              title="Muat Naik / Import Fail"
             >
               <Upload size={15} />
             </button>
@@ -199,7 +199,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
           onChange={handleFileUpload}
         />
 
-        {/* New Item Input Bar */}
+        {/* Bar Input Cipta Item Baharu */}
         {isCreating && (
           <form
             onSubmit={handleCreateSubmit}
@@ -214,7 +214,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
             <input
               type="text"
               autoFocus
-              placeholder={isCreating === 'folder' ? 'nama-folder' : 'nama-berkas.ext'}
+              placeholder={isCreating === 'folder' ? 'nama-folder' : 'nama-fail.ext'}
               value={newItemName}
               onChange={(e) => setNewItemName(e.target.value)}
               onKeyDown={(e) => {
@@ -238,7 +238,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
           </form>
         )}
 
-        {/* File Tree List */}
+        {/* Senarai Hierarki Fail */}
         <div className="flex-1 overflow-y-auto py-1 text-xs select-none">
           {files.map((file) => {
             const isActive = file.id === activeFileId;
@@ -298,7 +298,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                   )}
                 </div>
 
-                {/* Action buttons on hover/focus */}
+                {/* Butang tindakan semasa legar (hover) / fokus */}
                 <div
                   className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
                   onClick={(e) => e.stopPropagation()}
@@ -307,7 +307,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                     <button
                       onClick={() => downloadSingleFile(file)}
                       className="p-1 hover:bg-white/10 rounded text-slate-400 hover:text-white"
-                      title="Unduh Berkas Ini"
+                      title="Muat Turun Fail Ini"
                     >
                       <Download size={13} />
                     </button>
@@ -318,18 +318,18 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                       setEditingName(file.name);
                     }}
                     className="p-1 hover:bg-white/10 rounded text-slate-400 hover:text-white"
-                    title="Ubah Nama"
+                    title="Tukar Nama"
                   >
                     <Edit2 size={13} />
                   </button>
                   <button
                     onClick={() => {
-                      if (confirm(`Hapus ${file.name}?`)) {
+                      if (confirm(`Padam fail ${file.name}?`)) {
                         onDeleteFile(file.id);
                       }
                     }}
                     className="p-1 hover:bg-red-500/20 rounded text-slate-400 hover:text-red-400"
-                    title="Hapus"
+                    title="Padam"
                   >
                     <Trash2 size={13} />
                   </button>
@@ -339,12 +339,12 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
           })}
         </div>
 
-        {/* Explorer Footer Info */}
+        {/* Maklumat Bawah Penjelajah */}
         <div
           className="p-2.5 border-t text-[11px] text-slate-500 flex items-center justify-between"
           style={{ borderColor: theme.borderColor }}
         >
-          <span>{files.filter((f) => !f.isFolder).length} Berkas</span>
+          <span>{files.filter((f) => !f.isFolder).length} Fail</span>
           <span className="font-mono text-[10px] text-slate-600">NoteMy v2.0</span>
         </div>
       </aside>
