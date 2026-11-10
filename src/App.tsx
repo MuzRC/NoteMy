@@ -203,21 +203,43 @@ export default function App() {
     const loadExternalFile = async (urlString: string) => {
       if (!urlString) return;
       try {
-        const rawName = urlString.split('/').pop() || 'Fail_Luar.txt';
-        const cleanName = decodeURIComponent(rawName);
+        // 1. Tukar content:// atau file:// ke format URL yang boleh dibaca WebView
+        const webUrl = Capacitor.convertFileSrc(urlString);
 
-        const response = await fetch(urlString);
+        // 2. Baca isi kandungan teks
+        const response = await fetch(webUrl);
         const textContent = await response.text();
 
         if (!isMounted) return;
 
+        // 3. Ekstrak nama fail yang bersih
+        let cleanName = 'Fail_Luar.txt';
+        try {
+          const decoded = decodeURIComponent(urlString);
+          const namePart = decoded.split('?')[0].split('/').pop();
+          if (namePart && namePart.trim()) {
+            cleanName = namePart.trim();
+          }
+        } catch (e) {
+          cleanName = 'Fail_Luar.txt';
+        }
+
+        // Jika nama fail cuma nombor ID tanpa extension, jadikan .txt
+        if (!cleanName.includes('.')) {
+          cleanName = `${cleanName}.txt`;
+        }
+
+        const newId = 'ext_' + Date.now();
+        let targetId = newId;
+
+        // 4. Masukkan ke dalam senarai tab editor
         setFiles((prev) => {
           const existing = prev.find(
             (f) => f.name.toLowerCase() === cleanName.toLowerCase() && !f.isFolder
           );
 
           if (existing) {
-            setActiveFileId(existing.id);
+            targetId = existing.id;
             return prev.map((f) =>
               f.id === existing.id
                 ? { ...f, content: textContent, isOpen: true, isUnsaved: false }
@@ -226,7 +248,7 @@ export default function App() {
           }
 
           const newExternalFile: FileItem = {
-            id: 'ext_' + Math.random().toString(36).substring(2, 9),
+            id: newId,
             name: cleanName,
             path: '/' + cleanName,
             content: textContent,
@@ -237,14 +259,16 @@ export default function App() {
             isUnsaved: false,
           };
 
-          setActiveFileId(newExternalFile.id);
           return [...prev, newExternalFile];
         });
+
+        // Set tab aktif di luar setFiles
+        setActiveFileId(targetId);
+
       } catch (err) {
-        console.warn('Gagal membaca fail luaran Android:', err);
+        console.error('Gagal membaca fail luaran Android:', err);
       }
     };
-
     const listenerPromise = CapApp.addListener('appUrlOpen', (data) => {
       if (data?.url) {
         loadExternalFile(data.url);
