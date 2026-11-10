@@ -30,7 +30,7 @@ export const TabBar: React.FC<TabBarProps> = ({
           borderColor: theme.borderColor,
         }}
       >
-        Tidak ada berkas terbuka. Pilih berkas dari panel samping.
+        Tiada fail terbuka. Pilih fail daripada panel sisi.
       </div>
     );
   }
