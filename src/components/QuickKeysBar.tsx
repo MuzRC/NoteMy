@@ -22,32 +22,32 @@ export const QuickKeysBar: React.FC<QuickKeysBarProps> = ({
   canRedo,
 }) => {
   const quickKeys = [
-    { label: 'Tab', insert: '  ', title: 'Indent 2 spaces' },
-    { label: '{', insert: '{}', offset: -1, title: 'Braces' },
-    { label: '}', insert: '}', title: 'Closing brace' },
-    { label: '(', insert: '()', offset: -1, title: 'Parentheses' },
-    { label: ')', insert: ')', title: 'Closing parenthesis' },
-    { label: '<', insert: '<>', offset: -1, title: 'Angle brackets / HTML tag' },
-    { label: '>', insert: '>', title: 'Closing tag' },
-    { label: '[', insert: '[]', offset: -1, title: 'Square brackets' },
-    { label: ']', insert: ']', title: 'Closing bracket' },
-    { label: '"', insert: '""', offset: -1, title: 'Double quotes' },
-    { label: "'", insert: "''", offset: -1, title: 'Single quotes' },
-    { label: ';', insert: ';', title: 'Semicolon' },
-    { label: ':', insert: ':', title: 'Colon' },
-    { label: '=', insert: ' = ', title: 'Equal sign' },
-    { label: '=>', insert: ' => ', title: 'Arrow function' },
-    { label: '/', insert: '/', title: 'Slash' },
-    { label: '\\', insert: '\\', title: 'Backslash' },
-    { label: '!', insert: '!', title: 'Exclamation' },
-    { label: '$', insert: '$', title: 'Dollar' },
-    { label: '_', insert: '_', title: 'Underscore' },
-    { label: '&', insert: '&', title: 'Ampersand' },
-    { label: '|', insert: '|', title: 'Pipe' },
-    { label: '+', insert: ' + ', title: 'Plus' },
-    { label: '-', insert: ' - ', title: 'Minus' },
-    { label: '?', insert: '?', title: 'Question mark' },
-    { label: '#', insert: '#', title: 'Hash' },
+    { label: 'Tab', insert: '  ', title: 'Inden 2 ruang' },
+    { label: '{', insert: '{}', offset: -1, title: 'Kurungan dakap' },
+    { label: '}', insert: '}', title: 'Tutup kurungan dakap' },
+    { label: '(', insert: '()', offset: -1, title: 'Tanda kurung' },
+    { label: ')', insert: ')', title: 'Tutup tanda kurung' },
+    { label: '<', insert: '<>', offset: -1, title: 'Kurungan sudut / Tag HTML' },
+    { label: '>', insert: '>', title: 'Tutup tag' },
+    { label: '[', insert: '[]', offset: -1, title: 'Kurungan siku' },
+    { label: ']', insert: ']', title: 'Tutup kurungan siku' },
+    { label: '"', insert: '""', offset: -1, title: 'Tanda petik berganda' },
+    { label: "'", insert: "''", offset: -1, title: 'Tanda petik tunggal' },
+    { label: ';', insert: ';', title: 'Koma bertitik' },
+    { label: ':', insert: ':', title: 'Bertindih' },
+    { label: '=', insert: ' = ', title: 'Tanda sama dengan' },
+    { label: '=>', insert: ' => ', title: 'Fungsi anak panah' },
+    { label: '/', insert: '/', title: 'Garis condong' },
+    { label: '\\', insert: '\\', title: 'Garis condong terbalik' },
+    { label: '!', insert: '!', title: 'Tanda seru' },
+    { label: '$', insert: '$', title: 'Dolar' },
+    { label: '_', insert: '_', title: 'Garis bawah' },
+    { label: '&', insert: '&', title: 'Ampersand (dan)' },
+    { label: '|', insert: '|', title: 'Garis tegak (paip)' },
+    { label: '+', insert: ' + ', title: 'Tambah' },
+    { label: '-', insert: ' - ', title: 'Tolak' },
+    { label: '?', insert: '?', title: 'Tanda soal' },
+    { label: '#', insert: '#', title: 'Tanda pagar' },
   ];
 
   return (
@@ -58,11 +58,11 @@ export const QuickKeysBar: React.FC<QuickKeysBarProps> = ({
         borderColor: theme.borderColor,
       }}
       onMouseDown={(e) => {
-        // Prevent loss of focus in textarea
+        // Elak hilang fokus pada ruang teks (textarea)
         e.preventDefault();
       }}
     >
-      {/* Undo / Redo controls */}
+      {/* Kawalan Buat Asal / Buat Semula (Undo / Redo) */}
       <div className="flex items-center gap-1 pr-1 border-r border-white/10 shrink-0">
         <button
           onClick={onUndo}
@@ -76,7 +76,7 @@ export const QuickKeysBar: React.FC<QuickKeysBarProps> = ({
             backgroundColor: 'rgba(255, 255, 255, 0.05)',
             color: theme.quickKeyText,
           }}
-          title="Undo (Urungkan)"
+          title="Buat Asal (Undo)"
         >
           <Undo2 size={14} />
         </button>
@@ -93,13 +93,13 @@ export const QuickKeysBar: React.FC<QuickKeysBarProps> = ({
             backgroundColor: 'rgba(255, 255, 255, 0.05)',
             color: theme.quickKeyText,
           }}
-          title="Redo (Ulangi)"
+          title="Buat Semula (Redo)"
         >
           <Redo2 size={14} />
         </button>
       </div>
 
-      {/* Symbol quick keys */}
+      {/* Kunci Pintas Simbol */}
       <div className="flex items-center gap-1.5 shrink-0">
         {quickKeys.map((key, idx) => (
           <button
@@ -126,7 +126,7 @@ export const QuickKeysBar: React.FC<QuickKeysBarProps> = ({
               color: theme.accentColor,
               borderColor: theme.quickKeyBorder,
             }}
-            title="Rapikan Kode (Auto-format Indentasi)"
+            title="Kemaskan Kod (Format Inden Automatik)"
           >
             <Sparkles size={13} />
             <span>Format</span>
