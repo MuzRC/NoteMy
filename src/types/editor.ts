@@ -3,10 +3,13 @@ export type LanguageType =
   | 'css'
   | 'javascript'
   | 'typescript'
+  | 'jsx'
+  | 'tsx'
   | 'json'
   | 'python'
   | 'markdown'
-  | 'text';
+  | 'text'
+  | string;
 
 export interface FileItem {
   id: string;

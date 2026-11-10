@@ -6,6 +6,7 @@ export interface ProjectTemplate {
   title: string;
   description: string;
   category?: string;
+  badge?: string;
   icon?: string;
   files: FileItem[];
 }
