@@ -43,12 +43,12 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
   onImportFiles,
 }) => {
   const [collapsedFolders, setCollapsedFolders] = useState<Record<string, boolean>>({});
-  const [isCreating, setIsCreating] = useState<'file' | 'folder' | null>(null);
-  const [newItemName, setNewItemName] = useState('');
+  const [isCreatingFolder, setIsCreatingFolder] = useState(false);
+  const [newFolderName, setNewFolderName] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
   
-  // State untuk modal pengesahan padam (elak guna confirm() bawaan WebView)
+  // State untuk modal pengesahan padam
   const [fileToDelete, setFileToDelete] = useState<FileItem | null>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -60,12 +60,31 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     }));
   };
 
-  const handleCreateSubmit = (e: React.FormEvent) => {
+  // Cipta fail automatik File 1.txt, File 2.txt, dll.
+  const handleQuickCreateFile = () => {
+    let count = 1;
+    const existingNames = new Set(files.map((f) => f.name.toLowerCase()));
+    
+    while (existingNames.has(`file ${count}.txt`.toLowerCase())) {
+      count++;
+    }
+
+    const newFileName = `File ${count}.txt`;
+    onCreateFile(newFileName, false, null);
+
+    // Di telefon, tutup sidebar supaya terus nampak editor fail baharu
+    if (window.innerWidth < 768) {
+      onClose();
+    }
+  };
+
+  // Cipta folder baharu dengan input nama
+  const handleCreateFolderSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newItemName.trim()) return;
-    onCreateFile(newItemName.trim(), isCreating === 'folder', null);
-    setNewItemName('');
-    setIsCreating(null);
+    if (!newFolderName.trim()) return;
+    onCreateFile(newFolderName.trim(), true, null);
+    setNewFolderName('');
+    setIsCreatingFolder(false);
   };
 
   const handleRenameSubmit = (e: React.FormEvent, id: string) => {
@@ -166,22 +185,20 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
           </span>
 
           <div className="flex items-center gap-1">
+            {/* Butang Cipta Fail Automatik */}
             <button
               type="button"
-              onClick={() => {
-                setIsCreating('file');
-                setNewItemName('');
-              }}
+              onClick={handleQuickCreateFile}
               className="p-1 rounded hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
-              title="Cipta Fail Baharu"
+              title="Cipta Fail Baharu (Automatik)"
             >
               <FilePlus size={15} />
             </button>
             <button
               type="button"
               onClick={() => {
-                setIsCreating('folder');
-                setNewItemName('');
+                setIsCreatingFolder(true);
+                setNewFolderName('');
               }}
               className="p-1 rounded hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
               title="Cipta Folder Baharu"
@@ -215,26 +232,22 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
           onChange={handleFileUpload}
         />
 
-        {/* Bar Input Cipta Item Baharu */}
-        {isCreating && (
+        {/* Bar Input Cipta Folder Baharu */}
+        {isCreatingFolder && (
           <form
-            onSubmit={handleCreateSubmit}
+            onSubmit={handleCreateFolderSubmit}
             className="p-2 border-b flex items-center gap-1.5"
             style={{ borderColor: theme.borderColor }}
           >
-            {isCreating === 'folder' ? (
-              <Folder size={15} className="text-amber-400 shrink-0" />
-            ) : (
-              <FileCode size={15} className="text-slate-400 shrink-0" />
-            )}
+            <Folder size={15} className="text-amber-400 shrink-0" />
             <input
               type="text"
               autoFocus
-              placeholder={isCreating === 'folder' ? 'nama-folder' : 'nama-fail.ext'}
-              value={newItemName}
-              onChange={(e) => setNewItemName(e.target.value)}
+              placeholder="nama-folder"
+              value={newFolderName}
+              onChange={(e) => setNewFolderName(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === 'Escape') setIsCreating(null);
+                if (e.key === 'Escape') setIsCreatingFolder(false);
               }}
               className="w-full text-xs bg-black/20 border border-slate-600 rounded px-1.5 py-1 text-white focus:outline-hidden focus:border-sky-400"
             />
@@ -246,7 +259,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
             </button>
             <button
               type="button"
-              onClick={() => setIsCreating(null)}
+              onClick={() => setIsCreatingFolder(false)}
               className="text-[10px] text-slate-400 hover:text-white px-1.5 py-1"
             >
               Batal
@@ -254,7 +267,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
           </form>
         )}
 
-        {/* Senarai Hierarki Fail */}
+        {/* Senarai Fail */}
         <div className="flex-1 overflow-y-auto py-1 text-xs select-none">
           {files.map((file) => {
             const isActive = file.id === activeFileId;
@@ -314,7 +327,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                   )}
                 </div>
 
-                {/* Butang tindakan - Nampak di mobile, hover di desktop */}
+                {/* Butang Tindakan */}
                 <div
                   className="flex items-center gap-0.5 opacity-80 md:opacity-0 md:group-hover:opacity-100 transition-opacity shrink-0"
                   onClick={(e) => e.stopPropagation()}
@@ -361,7 +374,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
           })}
         </div>
 
-        {/* Maklumat Bawah Penjelajah */}
+        {/* Maklumat Bawah */}
         <div
           className="p-2.5 border-t text-[11px] text-slate-500 flex items-center justify-between"
           style={{ borderColor: theme.borderColor }}
@@ -371,7 +384,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
         </div>
       </aside>
 
-      {/* Modal Pengesahan Padam (Khas untuk Android WebView & Browser) */}
+      {/* Modal Pengesahan Padam */}
       {fileToDelete && (
         <div 
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-100"
