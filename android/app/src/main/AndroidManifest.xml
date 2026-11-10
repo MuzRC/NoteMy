@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Kebenaran asas aplikasi -->
+    <!-- Kebenaran akses rangkaian & storan -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
 
@@ -19,6 +19,7 @@
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBarLaunch"
             android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize"
             android:exported="true">
 
             <!-- 1. Ikon pelancar biasa di skrin telefon (Launcher) -->
@@ -27,7 +28,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- 2. Menu 'Open with': Untuk semua fail teks (txt, html, css, log, dll.) -->
+            <!-- 2. Menu 'Open with': Menangkap semua fail berasaskan text/* (txt, html, css, log, csv, dll.) -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -37,7 +38,7 @@
                 <data android:mimeType="text/*" />
             </intent-filter>
 
-            <!-- 3. Menu 'Open with': Untuk format kod & skrip berasaskan application MIME -->
+            <!-- 3. Menu 'Open with': Menangkap MIME type kod & skrip spesifik -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -47,17 +48,22 @@
                 <data android:mimeType="application/json" />
                 <data android:mimeType="application/javascript" />
                 <data android:mimeType="application/x-javascript" />
+                <data android:mimeType="application/typescript" />
+                <data android:mimeType="text/typescript" />
                 <data android:mimeType="application/xml" />
                 <data android:mimeType="text/xml" />
+                <data android:mimeType="text/markdown" />
+                <data android:mimeType="text/x-markdown" />
+                <data android:mimeType="text/x-python" />
             </intent-filter>
 
-            <!-- 4. Menu 'Open with': Sandaran berasaskan corak nama sambungan fail -->
+            <!-- 4. Menu 'Open with': Sandaran ikut sambungan nama fail (Wajib ada host="*" supaya pathPattern berfungsi) -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="content" />
-                <data android:scheme="file" />
+                <data android:scheme="content" android:host="*" />
+                <data android:scheme="file" android:host="*" />
                 <data android:mimeType="*/*" />
                 <data android:pathPattern=".*\\.txt" />
                 <data android:pathPattern=".*\\.js" />
@@ -68,6 +74,7 @@
                 <data android:pathPattern=".*\\.css" />
                 <data android:pathPattern=".*\\.json" />
                 <data android:pathPattern=".*\\.md" />
+                <data android:pathPattern=".*\\.py" />
             </intent-filter>
 
         </activity>
