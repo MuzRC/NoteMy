@@ -64,21 +64,21 @@ export const DEFAULT_FILES: FileItem[] = [
     isOpen: true,
     isUnsaved: false,
     content: `<!DOCTYPE html>
-<html lang="id">
+<html lang="ms">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NoteMy Live Demo</title>
+  <title>Demo Langsung NoteMy</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="card">
-    <div class="badge">NoteMy Web & Mobile</div>
-    <h1>Halo dari Editor NoteMy!</h1>
-    <p>Ubah kode di editor dan tekan <strong>Run</strong> untuk melihat hasil langsung.</p>
+    <div class="badge">NoteMy Web & Telefon</div>
+    <h1>Selamat Datang ke Editor NoteMy!</h1>
+    <p>Ubah kod dalam editor dan tekan <strong>Jalankan</strong> untuk melihat hasil secara langsung.</p>
 
     <div class="counter-box">
-      <span class="count-label">Nilai Hitungan:</span>
+      <span class="count-label">Nilai Kiraan:</span>
       <div id="count" class="count-num">0</div>
       <div class="btn-group">
         <button id="btn-dec" class="btn btn-secondary">- Kurang</button>
@@ -212,7 +212,7 @@ p {
     parentId: null,
     isOpen: false,
     isUnsaved: false,
-    content: `// Logika Interaktif NoteMy
+    content: `// Logik Interaktif NoteMy
 let count = 0;
 const countEl = document.getElementById('count');
 const btnInc = document.getElementById('btn-inc');
@@ -240,7 +240,7 @@ if (btnDec) {
   });
 }
 
-console.log('Aplikasi NoteMy siap dijalankan!');`,
+console.log('Aplikasi NoteMy sedia dijalankan!');`,
   },
 ];
 
@@ -253,7 +253,7 @@ export const TEMPLATES: ProjectTemplate[] = [
     name: 'Aplikasi Kaunter Interaktif',
     title: 'Aplikasi Kaunter Interaktif',
     description: 'Templat asas HTML, CSS, dan JavaScript interaktif dengan fungsi butang kaunter.',
-    category: 'Starter',
+    category: 'Permulaan',
     icon: 'layout',
     files: DEFAULT_FILES,
   },
@@ -262,7 +262,7 @@ export const TEMPLATES: ProjectTemplate[] = [
     name: 'Projek Web Kosong',
     title: 'Projek Web Kosong',
     description: 'Fail bersih index.html, styles.css, dan app.js sedia untuk mula dari awal.',
-    category: 'Blank',
+    category: 'Kosong',
     icon: 'file-code',
     files: [
       {
@@ -275,11 +275,11 @@ export const TEMPLATES: ProjectTemplate[] = [
         isOpen: true,
         isUnsaved: false,
         content: `<!DOCTYPE html>
-<html lang="en">
+<html lang="ms">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Projek Baru</title>
+  <title>Projek Baharu</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -314,16 +314,16 @@ export const TEMPLATES: ProjectTemplate[] = [
         parentId: null,
         isOpen: false,
         isUnsaved: false,
-        content: `console.log('Projek baru berjaya dimuatkan.');`,
+        content: `console.log('Projek baharu berjaya dimuatkan.');`,
       },
     ],
   },
   {
     id: 'canvas-particle',
-    name: 'Animasi Canvas Partikel',
-    title: 'Animasi Canvas Partikel',
+    name: 'Animasi Kanvas Zarah',
+    title: 'Animasi Kanvas Zarah',
     description: 'Contoh animasi interaktif menggunakan HTML5 Canvas dan JavaScript requestAnimationFrame.',
-    category: 'Graphic',
+    category: 'Grafik',
     icon: 'sparkles',
     files: [
       {
@@ -336,11 +336,11 @@ export const TEMPLATES: ProjectTemplate[] = [
         isOpen: true,
         isUnsaved: false,
         content: `<!DOCTYPE html>
-<html lang="en">
+<html lang="ms">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Animasi Canvas</title>
+  <title>Animasi Kanvas</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
