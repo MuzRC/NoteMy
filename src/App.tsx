@@ -128,6 +128,25 @@ export default function App() {
   const [isTemplatesOpen, setIsTemplatesOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
+  // Simpan status UI ke dalam Ref untuk elak isu stale closure pada pendengar butang fizikal Android
+  const uiStateRef = useRef({
+    isSidebarOpen: false,
+    isPreviewOpen: false,
+    isSettingsOpen: false,
+    isTemplatesOpen: false,
+    isSearchOpen: false,
+  });
+
+  useEffect(() => {
+    uiStateRef.current = {
+      isSidebarOpen,
+      isPreviewOpen,
+      isSettingsOpen,
+      isTemplatesOpen,
+      isSearchOpen,
+    };
+  }, [isSidebarOpen, isPreviewOpen, isSettingsOpen, isTemplatesOpen, isSearchOpen]);
+
   // Tema aktif semasa
   const currentTheme = useMemo(() => {
     return THEMES[settings.theme] || THEMES['acode-dark'];
@@ -138,7 +157,7 @@ export default function App() {
     return files.find((f) => f.id === activeFileId) || null;
   }, [files, activeFileId]);
 
-  // Simpan fail ke localStorage dengan Debounce 800ms (elak papan kekunci telefon lag)
+  // Simpan fail ke localStorage dengan Debounce 800ms
   useEffect(() => {
     const timer = setTimeout(() => {
       try {
@@ -176,7 +195,7 @@ export default function App() {
     setCanRedo(r);
   }, []);
 
-  // Tangkap fail bila pengguna buka NoteMy daripada pilihan "Open with" Android
+  // 1. Tangkap fail luaran Android ("Open with")
   useEffect(() => {
     let isMounted = true;
 
@@ -186,14 +205,12 @@ export default function App() {
         const rawName = urlString.split('/').pop() || 'Fail_Luar.txt';
         const cleanName = decodeURIComponent(rawName);
 
-        // Ambil isi kandungan fail
         const response = await fetch(urlString);
         const textContent = await response.text();
 
         if (!isMounted) return;
 
         setFiles((prev) => {
-          // Semak jika fail dengan nama sama sudah sedia terbuka
           const existing = prev.find(
             (f) => f.name.toLowerCase() === cleanName.toLowerCase() && !f.isFolder
           );
@@ -207,7 +224,6 @@ export default function App() {
             );
           }
 
-          // Cipta tab fail baharu jika belum ada
           const newExternalFile: FileItem = {
             id: 'ext_' + Math.random().toString(36).substring(2, 9),
             name: cleanName,
@@ -228,14 +244,12 @@ export default function App() {
       }
     };
 
-    // 1. Dengar jika fail dibuka semasa app sedang berjalan di latar belakang (warm start)
     const listenerPromise = CapApp.addListener('appUrlOpen', (data) => {
       if (data?.url) {
         loadExternalFile(data.url);
       }
     });
 
-    // 2. Semak jika app baru dimulakan secara terus melalui fail (cold start)
     CapApp.getLaunchUrl().then((launchUrl) => {
       if (launchUrl?.url) {
         loadExternalFile(launchUrl.url);
@@ -248,10 +262,45 @@ export default function App() {
     };
   }, []);
 
-  // Pintasan Papan Kekunci (Ctrl+S, Ctrl+F, Ctrl+Enter)
+  // 2. Kawalan Butang Back Fizikal / Isyarat Android (Back Navigation)
+  useEffect(() => {
+    const backListenerPromise = CapApp.addListener('backButton', () => {
+      const current = uiStateRef.current;
+
+      // Tutup modal pratonton jika sedang terbuka
+      if (current.isPreviewOpen) {
+        setIsPreviewOpen(false);
+      } 
+      // Tutup modal tetapan jika sedang terbuka
+      else if (current.isSettingsOpen) {
+        setIsSettingsOpen(false);
+      } 
+      // Tutup modal templat jika sedang terbuka
+      else if (current.isTemplatesOpen) {
+        setIsTemplatesOpen(false);
+      } 
+      // Tutup panel sisi (penjelajah fail) jika sedang terbuka
+      else if (current.isSidebarOpen) {
+        setIsSidebarOpen(false);
+      } 
+      // Tutup bar carian jika sedang terbuka
+      else if (current.isSearchOpen) {
+        setIsSearchOpen(false);
+      } 
+      // Jika semua modal dan panel sudah tertutup, keluar dari aplikasi
+      else {
+        CapApp.exitApp();
+      }
+    });
+
+    return () => {
+      backListenerPromise.then((sub) => sub.remove()).catch(() => {});
+    };
+  }, []);
+
+  // Pintasan Papan Kekunci Komputer (Ctrl+S, Ctrl+F, Ctrl+Enter)
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
-      // Ctrl+S / Cmd+S: Simpan fail
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
         e.preventDefault();
         if (activeFileId) {
@@ -264,14 +313,12 @@ export default function App() {
         return;
       }
 
-      // Ctrl+F / Cmd+F: Buka/Tutup Carian
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
         e.preventDefault();
         setIsSearchOpen((prev) => !prev);
         return;
       }
 
-      // Ctrl+Enter / Cmd+Enter: Jalankan Pratonton Langsung
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         e.preventDefault();
         setIsPreviewOpen(true);
