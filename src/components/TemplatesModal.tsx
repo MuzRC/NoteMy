@@ -32,7 +32,7 @@ export const TemplatesModal: React.FC<TemplatesModalProps> = ({
   const handleApply = (tpl: ProjectTemplate) => {
     if (
       confirm(
-        `Ganti proyek saat ini dengan template "${tpl.name}"? Berkas lama Anda akan digantikan.`
+        `Gantikan projek semasa dengan templat "${tpl.name}"? Fail lama anda akan digantikan.`
       )
     ) {
       onSelectTemplate(tpl.files);
@@ -50,14 +50,14 @@ export const TemplatesModal: React.FC<TemplatesModalProps> = ({
           color: theme.textColor,
         }}
       >
-        {/* Modal Header */}
+        {/* Header Modal */}
         <div
           className="flex items-center justify-between px-5 h-13 border-b select-none shrink-0"
           style={{ borderColor: theme.borderColor }}
         >
           <div className="flex items-center gap-2">
             <LayoutTemplate size={18} className="text-sky-400" />
-            <h2 className="font-semibold text-sm sm:text-base">Pilih Template Proyek</h2>
+            <h2 className="font-semibold text-sm sm:text-base">Pilih Templat Projek</h2>
           </div>
           <button
             onClick={onClose}
@@ -67,10 +67,10 @@ export const TemplatesModal: React.FC<TemplatesModalProps> = ({
           </button>
         </div>
 
-        {/* Modal Body */}
+        {/* Badan Modal */}
         <div className="flex-1 overflow-y-auto p-5 space-y-3">
           <p className="text-xs text-slate-400 mb-2">
-            Pilih salah satu template siap pakai di bawah untuk langsung mencoba live preview dan fitur Acode.
+            Pilih salah satu templat sedia guna di bawah untuk mencuba pratonton langsung dan fungsi NoteMy.
           </p>
 
           {TEMPLATES.map((tpl) => (
@@ -100,7 +100,7 @@ export const TemplatesModal: React.FC<TemplatesModalProps> = ({
               <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-mono pt-1">
                 <Sparkles size={12} className="text-amber-400" />
                 <span>
-                  {tpl.files.length} Berkas:{' '}
+                  {tpl.files.length} Fail:{' '}
                   {tpl.files.map((f) => f.name).join(', ')}
                 </span>
               </div>
@@ -108,7 +108,7 @@ export const TemplatesModal: React.FC<TemplatesModalProps> = ({
           ))}
         </div>
 
-        {/* Modal Footer */}
+        {/* Kaki Modal */}
         <div
           className="flex justify-end p-4 border-t select-none"
           style={{ borderColor: theme.borderColor }}
