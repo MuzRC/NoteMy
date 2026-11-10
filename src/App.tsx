@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react';
 import { App as CapApp } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
 import { Header } from './components/Header';
 import { FileExplorer } from './components/FileExplorer';
 import { TabBar } from './components/TabBar';
