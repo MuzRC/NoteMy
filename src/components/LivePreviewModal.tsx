@@ -39,7 +39,7 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = memo(({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const consoleBottomRef = useRef<HTMLDivElement>(null);
 
-  // Generate combined HTML bundle only when modal is open
+  // Jana bungkusan HTML gabungan hanya apabila modal dibuka
   const htmlContent = useMemo(() => {
     if (!isOpen) return '';
 
@@ -49,14 +49,14 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = memo(({
 
     if (!htmlFile) {
       return `<!DOCTYPE html><html><body style="font-family:sans-serif;padding:24px;color:#94a3b8;text-align:center;">
-        <h3>Tidak ada berkas HTML ditemukan</h3>
-        <p>Silakan buat berkas <code>index.html</code> untuk menjalankan web preview.</p>
+        <h3>Tiada fail HTML ditemui</h3>
+        <p>Sila cipta fail <code>index.html</code> untuk menjalankan pratonton web.</p>
       </body></html>`;
     }
 
     let doc = htmlFile.content;
 
-    // Bridge script to capture console & errors
+    // Skrip penghubung untuk menangkap mesej konsol & ralat
     const bridgeScript = `
     <script>
       (function() {
@@ -106,7 +106,7 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = memo(({
           send('error', ['Promise Rejection: ' + (e.reason ? (e.reason.message || e.reason) : 'Unknown')]);
         });
 
-        // REPL message receiver
+        // Penerima mesej REPL
         window.addEventListener('message', function(ev) {
           if (ev.data && ev.data.source === 'acode-repl-eval') {
             try {
@@ -121,14 +121,14 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = memo(({
     </script>
     `;
 
-    // Inject bridge script right after <head> or at start
+    // Sisip skrip penghubung selepas <head> atau di awal fail
     if (doc.includes('<head>')) {
       doc = doc.replace('<head>', `<head>${bridgeScript}`);
     } else {
       doc = bridgeScript + doc;
     }
 
-    // Inline CSS files
+    // Selit fail CSS setempat secara terus (inline)
     files
       .filter((f) => f.language === 'css' && !f.isFolder)
       .forEach((cssFile) => {
@@ -136,7 +136,7 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = memo(({
           `<link[^>]+href=["'](\\./)?${cssFile.name}["'][^>]*>`,
           'gi'
         );
-        const styleTag = `<style>/* Inlined from ${cssFile.name} */\n${cssFile.content}\n</style>`;
+        const styleTag = `<style>/* Diselit dari ${cssFile.name} */\n${cssFile.content}\n</style>`;
         if (linkRegex.test(doc)) {
           doc = doc.replace(linkRegex, styleTag);
         } else {
@@ -144,7 +144,7 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = memo(({
         }
       });
 
-    // Inline JS files
+    // Selit fail JS secara terus (inline)
     files
       .filter((f) => (f.language === 'javascript' || f.name.endsWith('.js')) && !f.isFolder)
       .forEach((jsFile) => {
@@ -152,7 +152,7 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = memo(({
           `<script[^>]+src=["'](\\./)?${jsFile.name}["'][^>]*>\\s*<\\/script>`,
           'gi'
         );
-        const inlineScript = `<script>/* Inlined from ${jsFile.name} */\ntry {\n${jsFile.content}\n} catch(err) { console.error(err.message); }\n</script>`;
+        const inlineScript = `<script>/* Diselit dari ${jsFile.name} */\ntry {\n${jsFile.content}\n} catch(err) { console.error(err.message); }\n</script>`;
         if (scriptRegex.test(doc)) {
           doc = doc.replace(scriptRegex, inlineScript);
         }
@@ -161,7 +161,7 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = memo(({
     return doc;
   }, [isOpen, files, keyCounter]);
 
-  // Handle messages posted from preview iframe only when open
+  // Kendali mesej dari iframe pratonton hanya semasa modal terbuka
   useEffect(() => {
     if (!isOpen) return;
 
@@ -183,7 +183,7 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = memo(({
     return () => window.removeEventListener('message', handleMessage);
   }, [isOpen]);
 
-  // Auto-scroll console to bottom
+  // Skrol automatik konsol ke bahagian bawah
   useEffect(() => {
     if (activeTab === 'console') {
       consoleBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -259,12 +259,12 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = memo(({
           color: theme.textColor,
         }}
       >
-        {/* Modal Top Bar */}
+        {/* Bar Atas Modal */}
         <div
           className="flex items-center justify-between px-3 sm:px-5 h-12 border-b select-none shrink-0"
           style={{ borderColor: theme.borderColor }}
         >
-          {/* Left: View Switcher Tabs */}
+          {/* Kiri: Tab Pilihan Paparan */}
           <div className="flex items-center gap-1 p-1 bg-black/30 rounded-lg">
             <button
               onClick={() => setActiveTab('preview')}
@@ -275,7 +275,7 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = memo(({
               }`}
             >
               <Globe size={14} />
-              <span>Preview Web</span>
+              <span>Pratonton Web</span>
             </button>
             <button
               onClick={() => setActiveTab('console')}
@@ -286,7 +286,7 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = memo(({
               }`}
             >
               <Terminal size={14} />
-              <span>Console</span>
+              <span>Konsol</span>
               {consoleMessages.length > 0 && (
                 <span className="text-[10px] px-1.5 py-0.2 bg-black/40 rounded-full font-mono">
                   {consoleMessages.length}
@@ -295,7 +295,7 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = memo(({
             </button>
           </div>
 
-          {/* Center: Device Viewport Controls (only on preview) */}
+          {/* Tengah: Kawalan Paparan Peranti (Hanya pada Pratonton) */}
           {activeTab === 'preview' && (
             <div className="hidden sm:flex items-center gap-1 p-0.5 bg-black/30 rounded-lg">
               <button
@@ -305,7 +305,7 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = memo(({
                     ? 'bg-white/20 text-white'
                     : 'text-slate-400 hover:text-white'
                 }`}
-                title="Tampilan Penuh Responsif"
+                title="Paparan Penuh Responsif"
               >
                 <Maximize2 size={14} />
               </button>
@@ -316,7 +316,7 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = memo(({
                     ? 'bg-white/20 text-white'
                     : 'text-slate-400 hover:text-white'
                 }`}
-                title="Tampilan Tablet (768px)"
+                title="Paparan Tablet (768px)"
               >
                 <Tablet size={14} />
               </button>
@@ -327,19 +327,19 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = memo(({
                     ? 'bg-white/20 text-white'
                     : 'text-slate-400 hover:text-white'
                 }`}
-                title="Tampilan Ponsel (375px)"
+                title="Paparan Telefon (375px)"
               >
                 <Smartphone size={14} />
               </button>
             </div>
           )}
 
-          {/* Right: Actions */}
+          {/* Kanan: Tindakan Butang */}
           <div className="flex items-center gap-1 sm:gap-2">
             <button
               onClick={handleRefresh}
               className="p-1.5 rounded hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
-              title="Muat Ulang (Reload Preview)"
+              title="Muat Semula (Muat Semula Pratonton)"
             >
               <RotateCw size={15} />
             </button>
@@ -347,7 +347,7 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = memo(({
             <button
               onClick={openInNewTab}
               className="p-1.5 rounded hover:bg-white/10 text-slate-400 hover:text-white transition-colors hidden sm:block"
-              title="Buka di Tab Browser Baru"
+              title="Buka dalam Tab Pelayar Baharu"
             >
               <ExternalLink size={15} />
             </button>
@@ -355,16 +355,16 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = memo(({
             <button
               onClick={onClose}
               className="p-1.5 rounded hover:bg-white/10 text-slate-400 hover:text-white transition-colors ml-1"
-              title="Tutup Preview"
+              title="Tutup Pratonton"
             >
               <X size={17} />
             </button>
           </div>
         </div>
 
-        {/* Modal Body */}
+        {/* Badan Modal */}
         <div className="relative flex-1 bg-slate-950 flex flex-col overflow-hidden">
-          {/* Tab 1: Live Preview Iframe */}
+          {/* Tab 1: Iframe Pratonton Langsung */}
           <div
             className={`flex-1 w-full h-full flex items-center justify-center p-2 sm:p-4 overflow-auto ${
               activeTab === 'preview' ? 'block' : 'hidden'
@@ -382,7 +382,7 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = memo(({
               <iframe
                 key={keyCounter}
                 ref={iframeRef}
-                title="Acode Live Runner"
+                title="NoteMy Live Runner"
                 srcDoc={htmlContent}
                 sandbox="allow-scripts allow-modals allow-forms allow-same-origin"
                 className="w-full h-full border-none bg-white"
@@ -390,16 +390,16 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = memo(({
             </div>
           </div>
 
-          {/* Tab 2: Developer Console */}
+          {/* Tab 2: Konsol Pembangun */}
           <div
             className={`flex-1 flex flex-col h-full bg-[#0d1117] ${
               activeTab === 'console' ? 'flex' : 'hidden'
             }`}
           >
-            {/* Console Toolbar */}
+            {/* Bar Alat Konsol */}
             <div className="flex items-center justify-between px-3 py-2 border-b border-slate-800 text-xs shrink-0 select-none">
               <div className="flex items-center gap-1.5">
-                <span className="text-slate-400 font-mono text-[11px] mr-1">Filter:</span>
+                <span className="text-slate-400 font-mono text-[11px] mr-1">Penapis:</span>
                 {(['all', 'log', 'info', 'warn', 'error'] as const).map((lvl) => (
                   <button
                     key={lvl}
@@ -418,18 +418,18 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = memo(({
               <button
                 onClick={handleClearConsole}
                 className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-red-400 transition-colors"
-                title="Bersihkan Log"
+                title="Kosongkan Log"
               >
                 <Trash2 size={13} />
-                <span>Bersihkan</span>
+                <span>Kosongkan</span>
               </button>
             </div>
 
-            {/* Log Stream */}
+            {/* Aliran Log */}
             <div className="flex-1 overflow-y-auto p-3 font-mono text-xs space-y-1.5 select-text">
               {filteredLogs.length === 0 ? (
                 <div className="text-slate-600 text-center py-10 italic">
-                  Belum ada log konsol yang terekam. Gunakan <code>console.log()</code> di kode Anda.
+                  Tiada log konsol direkodkan setakat ini. Gunakan <code>console.log()</code> dalam kod anda.
                 </div>
               ) : (
                 filteredLogs.map((msg) => (
@@ -456,7 +456,7 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = memo(({
               <div ref={consoleBottomRef} />
             </div>
 
-            {/* Interactive REPL Prompt */}
+            {/* Ruang Perintah Interaktif REPL */}
             <form
               onSubmit={handleReplSubmit}
               className="flex items-center gap-2 p-2.5 border-t border-slate-800 bg-[#161b22] shrink-0"
@@ -464,7 +464,7 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = memo(({
               <span className="text-sky-400 font-mono font-bold select-none">&gt;</span>
               <input
                 type="text"
-                placeholder="Ketik perintah JavaScript dan tekan Enter..."
+                placeholder="Taip arahan JavaScript dan tekan Enter..."
                 value={replInput}
                 onChange={(e) => setReplInput(e.target.value)}
                 className="flex-1 bg-transparent text-white font-mono text-xs focus:outline-hidden"
@@ -473,7 +473,7 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = memo(({
                 type="submit"
                 disabled={!replInput.trim()}
                 className="p-1.5 bg-sky-500 hover:bg-sky-400 disabled:opacity-30 text-slate-950 rounded transition-colors"
-                title="Kirim ke Console"
+                title="Hantar ke Konsol"
               >
                 <Send size={13} />
               </button>
