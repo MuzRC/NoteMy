@@ -142,7 +142,9 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
       case 'css':
         return <FileCode size={16} className="text-sky-400 shrink-0" />;
       case 'javascript':
+      case 'jsx':
       case 'typescript':
+      case 'tsx':
         return <FileCode size={16} className="text-yellow-400 shrink-0" />;
       case 'json':
         return <FileCode size={16} className="text-emerald-400 shrink-0" />;
@@ -228,6 +230,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
           type="file"
           ref={fileInputRef}
           multiple
+          accept="*/*,.ts,.tsx,.js,.jsx,.mjs,.cjs,.json,.html,.htm,.css,.scss,.md,.txt,.py,.java,.kt,.xml,.yaml,.yml,text/plain"
           className="hidden"
           onChange={handleFileUpload}
         />
