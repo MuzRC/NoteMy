@@ -212,21 +212,40 @@ export default function App() {
 
         if (!isMounted) return;
 
-        // 3. Ekstrak nama fail yang bersih
-        let cleanName = 'Fail_Luar.txt';
-        try {
-          const decoded = decodeURIComponent(urlString);
-          const namePart = decoded.split('?')[0].split('/').pop();
-          if (namePart && namePart.trim()) {
-            cleanName = namePart.trim();
+        // 3. Ekstrak nama fail yang bersih (semak header content-disposition dahulu)
+        let cleanName = '';
+        const disposition = response.headers.get('content-disposition');
+        if (disposition && disposition.includes('filename=')) {
+          const match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+          if (match && match[1]) {
+            cleanName = match[1].replace(/['"]/g, '').trim();
           }
-        } catch (e) {
+        }
+
+        if (!cleanName) {
+          try {
+            const decoded = decodeURIComponent(urlString);
+            const namePart = decoded.split('?')[0].split('/').pop();
+            if (namePart && namePart.trim()) {
+              cleanName = namePart.trim();
+            }
+          } catch (e) {
+            cleanName = 'Fail_Luar.txt';
+          }
+        }
+
+        if (!cleanName) {
           cleanName = 'Fail_Luar.txt';
         }
 
-        // Jika nama fail cuma nombor ID tanpa extension, jadikan .txt
+        // Jika nama fail cuma nombor ID tanpa extension, semak laluan MediaStore video (.ts)
         if (!cleanName.includes('.')) {
-          cleanName = `${cleanName}.txt`;
+          const lowerUrl = urlString.toLowerCase();
+          if (lowerUrl.includes('/video/') || lowerUrl.includes('mp2t')) {
+            cleanName = `${cleanName}.ts`;
+          } else {
+            cleanName = `${cleanName}.txt`;
+          }
         }
 
         const newId = 'ext_' + Date.now();
@@ -242,7 +261,13 @@ export default function App() {
             targetId = existing.id;
             return prev.map((f) =>
               f.id === existing.id
-                ? { ...f, content: textContent, isOpen: true, isUnsaved: false }
+                ? {
+                    ...f,
+                    content: textContent,
+                    language: detectLanguage(cleanName),
+                    isOpen: true,
+                    isUnsaved: false,
+                  }
                 : f
             );
           }
